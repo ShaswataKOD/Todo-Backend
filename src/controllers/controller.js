@@ -28,8 +28,6 @@
 // //   }
 // // }
 
-
-
 // import {readAll ,writeTask} from "../utils/utils.js"
 
 // export const readTask = async (req, res,next) => {
@@ -77,13 +75,12 @@
 //   }
 // };
 
-
 // // export const readTask = async (req, res) => {
 // //   try {
 // //     const tasks = await readAll();
 
 // //     // Read and parse ?tags= from query string
-// //     const tagsQuery = req.query.tags; 
+// //     const tagsQuery = req.query.tags;
 
 // //     if (tagsQuery) {
 // //       const filterTags = tagsQuery
@@ -106,7 +103,6 @@
 // //     res.status(500).json({ error: 'The data could not be retrieved' });
 // //   }
 // // };
-
 
 // // export const readTask = async (req, res) => {
 // //   try {
@@ -145,10 +141,9 @@
 // //   }
 // // };
 
-
 // export const createTasks = async (req, res,next) => {
 //   try {
-//     const { title, priority, tags } = req.body;  
+//     const { title, priority, tags } = req.body;
 
 //     if (!title || title.trim() === '') {
 //       // return res.status(400).json({ error: 'Title is required' });
@@ -200,7 +195,7 @@
 // //     tasks[taskIndex].timestamp = new Date().toISOString();
 
 // //     await writeTask(tasks);
-    
+
 // //     console.log('Task updated successfully:', tasks[taskIndex]);
 // //     res.json(tasks[taskIndex]);
 // //   } catch (error) {
@@ -225,7 +220,7 @@
 //     if (title !== undefined) tasks[taskIndex].title = title.trim();
 //     if (priority !== undefined) tasks[taskIndex].priority = priority;
 //     if (completed !== undefined) tasks[taskIndex].completed = completed;
-//     if (tags !== undefined) tasks[taskIndex].tags = Array.isArray(tags) ? tags : []; 
+//     if (tags !== undefined) tasks[taskIndex].tags = Array.isArray(tags) ? tags : [];
 //     tasks[taskIndex].timestamp = new Date().toISOString();
 
 //     await writeTask(tasks);
@@ -237,12 +232,11 @@
 //   }
 // };
 
-
-// // use find index and splice 
+// // use find index and splice
 // export const deleteTask = async (req, res,next) => {
 //   try {
-//     const { id } = req.params; 
-    
+//     const { id } = req.params;
+
 //     console.log('Delete request - ID:', id);
 
 //     const tasks = await readAll();
@@ -255,7 +249,7 @@
 //     }
 
 //     await writeTask(filteredTasks);
-    
+
 //     console.log('Task deleted successfully');
 //     res.json({ message: 'Task deleted successfully' });
 //   } catch (error) {
@@ -265,22 +259,20 @@
 //   }
 // };
 
-
-
-import { readAll, writeTask } from "../utils/utils.js";
-import { v4 as uuidv4 } from "uuid";
+import { readAll, writeTask } from '../utils/utils.js'
+import { v4 as uuidv4 } from 'uuid'
 
 export const readTask = async (req, res, next) => {
   try {
-    const tasks = await readAll();
-    const { tags, priority, title } = req.query;
+    const tasks = await readAll()
+    const { tags, priority, title } = req.query
 
-    let filteredTasks = tasks;
+    let filteredTasks = tasks
 
     if (priority) {
       filteredTasks = filteredTasks.filter(
         (task) => task.priority.toLowerCase() === priority.toLowerCase()
-      );
+      )
     }
 
     if (tags) {
@@ -288,35 +280,35 @@ export const readTask = async (req, res, next) => {
         .toLowerCase()
         .split(',')
         .map((tag) => tag.trim())
-        .filter(Boolean);
+        .filter(Boolean)
 
       filteredTasks = filteredTasks.filter((task) => {
-        const taskTags = (task.tags || []).map((t) => t.toLowerCase());
-        return filterTags.every((tag) => taskTags.includes(tag));
-      });
+        const taskTags = (task.tags || []).map((t) => t.toLowerCase())
+        return filterTags.every((tag) => taskTags.includes(tag))
+      })
     }
 
     if (title) {
-      const titleLower = title.toLowerCase();
+      const titleLower = title.toLowerCase()
       filteredTasks = filteredTasks.filter((task) =>
         task.title.toLowerCase().includes(titleLower)
-      );
+      )
     }
 
-    res.json(filteredTasks);
+    res.json(filteredTasks)
   } catch (error) {
-    next(error);
+    next(error)
   }
-};
+}
 
 export const createTasks = async (req, res, next) => {
   try {
-    const { title, priority = "Medium", tags = [] } = req.body;
+    const { title, priority = 'Medium', tags = [] } = req.body
 
     if (!title || title.trim().length < 3) {
-      const error = new Error("Invalid title (min 3 characters)");
-      error.status = 400;
-      return next(error);
+      const error = new Error('Invalid title (min 3 characters)')
+      error.status = 400
+      return next(error)
     }
 
     const newTask = {
@@ -325,74 +317,75 @@ export const createTasks = async (req, res, next) => {
       completed: false,
       priority,
       tags: Array.isArray(tags) ? tags : [],
-      timestamp: new Date().toISOString(),
-    };
+      timestamp: new Date().toLocaleString('en-IN', {
+        timszone: 'Asia/Kolkata',
+      }),
+    }
 
-    const tasks = await readAll();
-    tasks.push(newTask);
-    await writeTask(tasks);
+    const tasks = await readAll()
+    tasks.push(newTask)
+    await writeTask(tasks)
 
-    res.status(201).json(newTask);
+    res.status(201).json(newTask)
   } catch (error) {
-    next(error);
+    next(error)
   }
-};
+}
 
 export const updateTask = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const { title, priority, completed, tags } = req.body;
+    const { id } = req.params
+    const { title, priority, completed, tags } = req.body
 
-    const tasks = await readAll();
-    const taskIndex = tasks.findIndex((t) => t.id === id);
+    const tasks = await readAll()
+    const taskIndex = tasks.findIndex((t) => t.id === id)
 
     if (taskIndex === -1) {
-      const error = new Error("Task not found");
-      error.status = 404;
-      return next(error);
+      const error = new Error('Task not found')
+      error.status = 404
+      return next(error)
     }
 
     if (title !== undefined) {
       if (title.trim().length < 3) {
-        const error = new Error("Title must be at least 3 characters");
-        error.status = 400;
-        return next(error);
+        const error = new Error('Title must be at least 3 characters')
+        error.status = 400
+        return next(error)
       }
-      tasks[taskIndex].title = title.trim();
+      tasks[taskIndex].title = title.trim()
     }
 
-    if (priority !== undefined) tasks[taskIndex].priority = priority;
-    if (completed !== undefined) tasks[taskIndex].completed = completed;
-    if (tags !== undefined) tasks[taskIndex].tags = Array.isArray(tags) ? tags : [];
+    if (priority !== undefined) tasks[taskIndex].priority = priority
+    if (completed !== undefined) tasks[taskIndex].completed = completed
+    if (tags !== undefined)
+      tasks[taskIndex].tags = Array.isArray(tags) ? tags : []
 
-    tasks[taskIndex].timestamp = new Date().toISOString();
-    await writeTask(tasks);
+    tasks[taskIndex].timestamp = new Date().toISOString()
+    await writeTask(tasks)
 
-    res.json(tasks[taskIndex]);
+    res.json(tasks[taskIndex])
   } catch (error) {
-    next(error);
+    next(error)
   }
-};
+}
 
 export const deleteTask = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const tasks = await readAll();
-    const initialLength = tasks.length;
+    const { id } = req.params
+    const tasks = await readAll()
+    const initialLength = tasks.length
 
-    const updatedTasks = tasks.filter((task) => task.id !== id);
+    const updatedTasks = tasks.filter((task) => task.id !== id)
 
     if (updatedTasks.length === initialLength) {
-      const error = new Error("Task not found");
-      error.status = 404;
-      return next(error);
+      const error = new Error('Task not found')
+      error.status = 404
+      return next(error)
     }
 
-    await writeTask(updatedTasks);
-    res.json({ message: "Task deleted successfully" });
+    await writeTask(updatedTasks)
+    res.json({ message: 'Task deleted successfully' })
   } catch (error) {
-    next(error);
+    next(error)
   }
-};
-
-
+}
