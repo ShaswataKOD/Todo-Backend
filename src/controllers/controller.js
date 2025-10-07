@@ -284,7 +284,7 @@ export const readTask = async (req, res, next) => {
 
       filteredTasks = filteredTasks.filter((task) => {
         const taskTags = (task.tags || []).map((t) => t.toLowerCase())
-        return filterTags.every((tag) => taskTags.includes(tag))
+        return taskTags.some((t) => t.includes(tag))
       })
     }
 
@@ -294,6 +294,7 @@ export const readTask = async (req, res, next) => {
         task.title.toLowerCase().includes(titleLower)
       )
     }
+    filteredTasks.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
 
     res.json(filteredTasks)
   } catch (error) {
@@ -318,7 +319,7 @@ export const createTasks = async (req, res, next) => {
       priority,
       tags: Array.isArray(tags) ? tags : [],
       timestamp: new Date().toLocaleString('en-IN', {
-        timszone: 'Asia/Kolkata',
+        timezone: 'Asia/Kolkata',
       }),
     }
 
@@ -360,7 +361,9 @@ export const updateTask = async (req, res, next) => {
     if (tags !== undefined)
       tasks[taskIndex].tags = Array.isArray(tags) ? tags : []
 
-    tasks[taskIndex].timestamp = new Date().toISOString()
+    tasks[taskIndex].timestamp = new Date().toLocaleString('en-IN', {
+      timezone: 'Asia/Kolkata',
+    })
     await writeTask(tasks)
 
     res.json(tasks[taskIndex])
