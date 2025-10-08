@@ -13,20 +13,20 @@
 //   }
 // }
 
-// validation/validateRequest.js
+
 export const validateRequest = (schema) => async (req, res, next) => {
   try {
     const validatedData = await schema.validate(req.body, {
-      abortEarly: false, // return all errors
-      stripUnknown: true, // remove unknown fields
+      abortEarly: false, 
+      stripUnknown: true, 
     });
 
-    req.validatedData = validatedData; // attach sanitized data to request
+    req.validatedData = validatedData;
     next();
   } catch (err) {
     if (err.name === 'ValidationError') {
       err.status = 400;
-      err.message = err.errors.join(', '); // format all errors in one message
+      err.message = err.errors.join(', '); 
     }
     next(err);
   }
