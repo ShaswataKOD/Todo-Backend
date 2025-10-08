@@ -9,6 +9,8 @@ export const createTasksSchema =yup.object ({
     
 });
 
-const updatedTasksSchema = yup.object({
-    
-})
+export const updateTasksSchema = yup.object({
+  title: yup.string().min(3).optional(),
+  priority: yup.string().oneOf(['Low', 'Medium', 'High']).optional(),
+  tags: yup.array().of(yup.string().trim()).optional(),
+});
