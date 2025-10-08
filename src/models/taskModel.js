@@ -1,10 +1,6 @@
 import mongoose from 'mongoose';
 
 const taskSchema = new mongoose.Schema({
-  uniqueId :
-  {
-    
-  },
   title: {
     type: String,
     required: true,
@@ -21,10 +17,6 @@ const taskSchema = new mongoose.Schema({
   tags: {
     type: [String],
     default: [],
-  },
-  timestamp: {
-    type: String,
-    required: true,
   },
 });
 

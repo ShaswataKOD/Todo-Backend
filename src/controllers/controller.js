@@ -1,7 +1,7 @@
 import { readAll, writeTask } from '../utils/utils.js'
 import { v4 as uuidv4 } from 'uuid'
-import {createTasksSchema} from '../validation/validationSchema.js'
-// import {validateRequest} from '../validation/validateRequest.js'
+
+
 
 
 
@@ -51,55 +51,8 @@ export const readTask = async (req, res, next) => {
     next(error)
   }
 }
-/*Create */
-// export const createTasks = async (req, res, next) => {
-//   //write a function
-//   // const validatedData = await validateRequest(createTasksSchema,req.body,next)
-//   try {
-//     // const { title, priority = 'Medium', tags = [] } = req.body
 
-//     // if (!title || title.trim().length < 3) {
-//     //   const error = new Error('Invalid title (min 3 characters)')
-//     //   error.status = 400
-//     //   return next(error)
-//     // }
-
-//     // const newTask = {
-//     //   id: uuidv4(),
-//     //   title: title.trim(),
-//     //   completed: false,
-//     //   priority,
-//     //   tags: Array.isArray(tags) ? tags : [],
-//     //   timestamp: new Date().toLocaleString('en-IN', {
-//     //     timezone: 'Asia/Kolkata',
-//     //   }),
-//     // }
-
-//     const newTask = {
-//       id: uuidv4(),
-//       title: validatedData.title.trim(),
-//       completed: false,
-//       priority: validatedData.priority,
-//       tags: validatedData.tags,
-//       timestamp: new Date().toLocaleString('en-IN', {
-//         timeZone: 'Asia/Kolkata',
-//       }),
-//     }
-
-//     // const newTask = validateData
-
-//     const tasks = await readAll()
-//     tasks.push(newTask)
-//     await writeTask(tasks)
-
-//     res.status(201).json(newTask)
-//   } catch (error) {
-//     next(error)
-//   }
-// }
-
-
-// new version
+// create version
 
 export const createTasks = async (req, res, next) => {
   try {
