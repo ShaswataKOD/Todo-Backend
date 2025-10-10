@@ -17,22 +17,33 @@
 
 
 
+
+
+
+// MongoDB version 
+
 import express from 'express';
 import {
   readTask,
   createTasks,
+  searchTasks,
   updateTask,
   deleteTask
 } from '../controllers/controller.js';
 
-import { validateRequest } from "../validation/validateRequest.js"
-import { createTasksSchema, updateTasksSchema } from "../validation/validationSchema.js"
+//validation is not currently working 
+
+// import { validateRequest } from "../validation/validateRequest.js"
+// import { createTasksSchema, updateTasksSchema } from "../validation/validationSchema.js"
+
+// validateRequest(createTasksSchema),
 
 const router = express.Router();
 
 router.get('/', readTask);
-router.post('/', validateRequest(createTasksSchema), createTasks);
-router.put('/:id', validateRequest(updateTasksSchema), updateTask);
+router.post('/',  createTasks);
+router.get('/search',searchTasks);
+router.put('/:id', updateTask);
 router.delete('/:id', deleteTask);
 
 export default router;

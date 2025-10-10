@@ -1,92 +1,120 @@
-import { readAll, writeTask } from '../utils/utils.js'
-import { v4 as uuidv4 } from 'uuid'
+// import { readAll, writeTask } from '../utils/utils.js'
+// import { v4 as uuidv4 } from 'uuid'
 
+// export const readTask = async (req, res, next) => {
+//   try {
+//     const tasks = await readAll()
+//     const { tags, priority, title } = req.query
 
+//     let filteredTasks = tasks
 
+//     if (priority) {
+//       filteredTasks = filteredTasks.filter(
+//         (task) => task.priority.toLowerCase() === priority.toLowerCase()
+//       )
+//     }
 
+//     //not working currently
 
+//     // if (tags) {
+//     //   const filterTags = tags
+//     //     .toLowerCase()
+//     //     .split(',')
+//     //     .map((tag) => tag.trim())
+//     //     .filter(Boolean)
 
+//     //   filteredTasks = filteredTasks.filter((task) => {
+//     //     const taskTags = (task.tags || []).map((t) => t.toLowerCase())
+//     //     return taskTags.some((t) => t.includes(tag))
+//     //   })
+//     // }
 
+//     if (title) {
+//       const titleLower = title.toLowerCase()
+//       filteredTasks = filteredTasks.filter((task) =>
+//         task.title.toLowerCase().includes(titleLower)
+//       )
+//     }
+//     // sorting based on timestamp of create
 
-export const readTask = async (req, res, next) => {
-  try {
-    const tasks = await readAll()
-    const { tags, priority, title } = req.query
+//     filteredTasks.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
 
-    let filteredTasks = tasks
+//     res.json(filteredTasks)
+//   } catch (error) {
+//     next(error)
+//   }
+// }
 
-    if (priority) {
-      filteredTasks = filteredTasks.filter(
-        (task) => task.priority.toLowerCase() === priority.toLowerCase()
-      )
-    }
+// // create version
 
-    //not working currently 
+// export const createTasks = async (req, res, next) => {
+//   try {
+//     const validatedData = req.validatedData; // comes from middleware
 
-    // if (tags) {
-    //   const filterTags = tags
-    //     .toLowerCase()
-    //     .split(',')
-    //     .map((tag) => tag.trim())
-    //     .filter(Boolean)
+//     const newTask = {
+//       id: uuidv4(),
+//       title: validatedData.title.trim(),
+//       completed: false,
+//       priority: validatedData.priority,
+//       tags: validatedData.tags,
+//       timestamp: new Date().toLocaleString('en-IN', {
+//         timeZone: 'Asia/Kolkata',
+//       }),
+//     };
 
-    //   filteredTasks = filteredTasks.filter((task) => {
-    //     const taskTags = (task.tags || []).map((t) => t.toLowerCase())
-    //     return taskTags.some((t) => t.includes(tag))
-    //   })
-    // }
+//     const tasks = await readAll();
+//     tasks.push(newTask);
+//     await writeTask(tasks);
 
-    if (title) {
-      const titleLower = title.toLowerCase()
-      filteredTasks = filteredTasks.filter((task) =>
-        task.title.toLowerCase().includes(titleLower)
-      )
-    }
-    // sorting based on timestamp of create
-  
-    filteredTasks.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+//     res.status(201).json(newTask);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
-    res.json(filteredTasks)
-  } catch (error) {
-    next(error)
-  }
-}
+// // export const updateTask = async (req, res, next) => {
+// //   try {
+// //     const { id } = req.params
+// //     const { title, priority, completed, tags } = req.body
 
-// create version
+// //     const tasks = await readAll()
+// //     const taskIndex = tasks.findIndex((t) => t.id === id)
 
-export const createTasks = async (req, res, next) => {
-  try {
-    const validatedData = req.validatedData; // comes from middleware
+// //     if (taskIndex === -1) {
+// //       const error = new Error('Task not found')
+// //       error.status = 404
+// //       return next(error)
+// //     }
 
-    const newTask = {
-      id: uuidv4(),
-      title: validatedData.title.trim(),
-      completed: false,
-      priority: validatedData.priority,
-      tags: validatedData.tags,
-      timestamp: new Date().toLocaleString('en-IN', {
-        timeZone: 'Asia/Kolkata',
-      }),
-    };
+// //     if (title !== undefined) {
+// //       if (title.trim().length < 3) {
+// //         const error = new Error('Title must be at least 3 characters')
+// //         error.status = 400
+// //         return next(error)
+// //       }
+// //       tasks[taskIndex].title = title.trim()
+// //     }
 
-    const tasks = await readAll();
-    tasks.push(newTask);
-    await writeTask(tasks);
+// //     if (priority !== undefined) tasks[taskIndex].priority = priority
+// //     if (completed !== undefined) tasks[taskIndex].completed = completed
+// //     if (tags !== undefined)
+// //       tasks[taskIndex].tags = Array.isArray(tags) ? tags : []
 
-    res.status(201).json(newTask);
-  } catch (error) {
-    next(error);
-  }
-};
+// //     tasks[taskIndex].timestamp = new Date().toLocaleString('en-IN', {
+// //       timezone: 'Asia/Kolkata',
+// //     })
+// //     await writeTask(tasks)
 
-
-
-
+// //     res.json(tasks[taskIndex])
+// //   } catch (error) {
+// //     next(error)
+// //   }
+// // }
 
 // export const updateTask = async (req, res, next) => {
 //   try {
 //     const { id } = req.params
-//     const { title, priority, completed, tags } = req.body
+//     const { title, priority, completed, tags } = req.validatedData
 
 //     const tasks = await readAll()
 //     const taskIndex = tasks.findIndex((t) => t.id === id)
@@ -98,22 +126,25 @@ export const createTasks = async (req, res, next) => {
 //     }
 
 //     if (title !== undefined) {
-//       if (title.trim().length < 3) {
-//         const error = new Error('Title must be at least 3 characters')
-//         error.status = 400
-//         return next(error)
-//       }
 //       tasks[taskIndex].title = title.trim()
 //     }
 
-//     if (priority !== undefined) tasks[taskIndex].priority = priority
-//     if (completed !== undefined) tasks[taskIndex].completed = completed
-//     if (tags !== undefined)
+//     if (priority !== undefined) {
+//       tasks[taskIndex].priority = priority
+//     }
+
+//     if (completed !== undefined) {
+//       tasks[taskIndex].completed = completed
+//     }
+
+//     if (tags !== undefined) {
 //       tasks[taskIndex].tags = Array.isArray(tags) ? tags : []
+//     }
 
 //     tasks[taskIndex].timestamp = new Date().toLocaleString('en-IN', {
-//       timezone: 'Asia/Kolkata',
+//       timeZone: 'Asia/Kolkata',
 //     })
+
 //     await writeTask(tasks)
 
 //     res.json(tasks[taskIndex])
@@ -122,72 +153,114 @@ export const createTasks = async (req, res, next) => {
 //   }
 // }
 
+// export const deleteTask = async (req, res, next) => {
+//   try {
+//     const { id } = req.params
+//     const tasks = await readAll()
+//     const initialLength = tasks.length
 
+//     const updatedTasks = tasks.filter((task) => task.id !== id)
 
+//     if (updatedTasks.length === initialLength) {
+//       const error = new Error('Task not found')
+//       error.status = 404
+//       return next(error)
+//     }
 
+//     await writeTask(updatedTasks)
+//     res.json({ message: 'Task deleted successfully' })
+//   } catch (error) {
+//     next(error)
+//   }
+// }
 
-export const updateTask = async (req, res, next) => {
+// use MongoDB to perform CRUD
+
+import Task from '../models/task.js'
+
+//POST
+export async function createTasks(req, res, next) {
   try {
-    const { id } = req.params
-    const { title, priority, completed, tags } = req.validatedData
+    const { title, priority, tags, isCompleted } = req.body
 
-    const tasks = await readAll()
-    const taskIndex = tasks.findIndex((t) => t.id === id)
-
-    if (taskIndex === -1) {
-      const error = new Error('Task not found')
-      error.status = 404
-      return next(error)
-    }
-
-    if (title !== undefined) {
-      tasks[taskIndex].title = title.trim()
-    }
-
-    if (priority !== undefined) {
-      tasks[taskIndex].priority = priority
-    }
-
-    if (completed !== undefined) {
-      tasks[taskIndex].completed = completed
-    }
-
-    if (tags !== undefined) {
-      tasks[taskIndex].tags = Array.isArray(tags) ? tags : []
-    }
-
-    tasks[taskIndex].timestamp = new Date().toLocaleString('en-IN', {
-      timeZone: 'Asia/Kolkata',
+    const newTask = new Task({
+      title,
+      isCompleted,
+      priority,
+      tags,
     })
 
-    await writeTask(tasks)
-
-    res.json(tasks[taskIndex])
+    const savedTask = await newTask.save()
+    if (res) {
+      res.status(201).json(savedTask)
+    }
   } catch (error) {
     next(error)
   }
 }
 
+// GET
 
+// get all tasks
 
-
-
-export const deleteTask = async (req, res, next) => {
+export async function readTask(req, res, next) {
   try {
-    const { id } = req.params
-    const tasks = await readAll()
-    const initialLength = tasks.length
+    const data = await Task.find().sort({ createdAt: -1 })
 
-    const updatedTasks = tasks.filter((task) => task.id !== id)
+    res.status(200).json(data)
+  } catch (error) {
+    next(error)
+  }
+}
 
-    if (updatedTasks.length === initialLength) {
-      const error = new Error('Task not found')
-      error.status = 404
-      return next(error)
+// nnow let us get the search feature right using regex
+
+export async function searchTasks(req, res, next) {
+  try {
+    const { title, priority } = req.query
+
+    //create a dynamic filter such that both of them can be handled together
+    const filter = {}
+    if (title) {
+      filter.title = { $regex: title, $options: 'i' }
     }
 
-    await writeTask(updatedTasks)
-    res.json({ message: 'Task deleted successfully' })
+    if (priority) {
+      filter.priority = priority
+    }
+
+    const filteredTask = await Task.find(filter).sort({ createdAt: -1 })
+
+    res.status(200).json(filteredTask)
+  } catch (error) {
+    next(error)
+  }
+}
+
+//edit functionality //modify the front end url with UI parameter
+
+export async function updateTask(req, res, next) {
+  try {
+    const { id } = req.params
+    const updatedData = req.body
+
+    const UpdatedTasks = await Task.findByIdAndUpdate(id, updatedData, {
+      new: true,
+      runValidators: true,
+    })
+
+    res.status(200).json(UpdatedTasks)
+  } catch (error) {
+    next(error)
+  }
+}
+
+export async function deleteTask(req, res, next) {
+  try {
+    const { id } = req.params
+    await Task.findByIdAndDelete(id)
+
+    res.status(204).json()
   } catch (error) {
     next(error)
   }
