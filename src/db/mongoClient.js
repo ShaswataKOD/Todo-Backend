@@ -1,9 +1,10 @@
 import mongoose from 'mongoose'
 import dotenv from 'dotenv/config'
 
-dotenv.config()
+// dotenv.config()
 
-const URI = process.env.URI
+const URI = // add the URI hardcoded for now here
+
 const connectDB = async () => {
   try {
     await mongoose.connect(URI)
