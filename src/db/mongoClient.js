@@ -1,9 +1,9 @@
 import mongoose from 'mongoose'
-import dotenv from 'dotenv/config'
+// import dotenv from 'dotenv/config'
 
 // dotenv.config()
 
-const URI = // add the URI hardcoded for now here
+const URI = "mongodb+srv://shaswata:shaswata707@cluster0.5td3woj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0" // add the URI hardcoded for now here
 
 const connectDB = async () => {
   try {

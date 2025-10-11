@@ -181,23 +181,18 @@ import Task from '../models/task.js'
 //POST
 export async function createTasks(req, res, next) {
   try {
-    const { title, priority, tags, isCompleted } = req.body
+    const { title, priority, tags, isCompleted } = req.body;
 
-    const newTask = new Task({
-      title,
-      isCompleted,
-      priority,
-      tags,
-    })
+    const newTask = new Task({ title, priority, tags, isCompleted });
+    const savedTask = await newTask.save();
 
-    const savedTask = await newTask.save()
-    if (res) {
-      res.status(201).json(savedTask)
-    }
+    res.status(201).json(savedTask);
   } catch (error) {
-    next(error)
+    console.error("Error creating task:", error);
+    res.status(400).json({ error: "Failed to create task" });
   }
 }
+
 
 // GET
 
@@ -214,26 +209,30 @@ export async function readTask(req, res, next) {
 }
 
 // nnow let us get the search feature right using regex
-
 export async function searchTasks(req, res, next) {
   try {
-    const { title, priority } = req.query
+    const { title, priority, tags } = req.query;
 
-    //create a dynamic filter such that both of them can be handled together
-    const filter = {}
+    const filter = {};
+
     if (title) {
-      filter.title = { $regex: title, $options: 'i' }
+      filter.title = { $regex: title, $options: 'i' };
     }
 
     if (priority) {
-      filter.priority = priority
+      filter.priority = priority;
     }
 
-    const filteredTask = await Task.find(filter).sort({ createdAt: -1 })
+    if (tags) {
+      const tagList = tags.split(',').map(tag => tag.trim());
+      filter.tags = { $all: tagList };
+    }
 
-    res.status(200).json(filteredTask)
+    const filteredTask = await Task.find(filter).sort({ createdAt: -1 });
+
+    res.status(200).json(filteredTask);
   } catch (error) {
-    next(error)
+    next(error);
   }
 }
 
@@ -257,11 +256,15 @@ export async function updateTask(req, res, next) {
 
 export async function deleteTask(req, res, next) {
   try {
-    const { id } = req.params
-    await Task.findByIdAndDelete(id)
-
-    res.status(204).json()
+    const { id } = req.params;
+    const deleted = await Task.findByIdAndDelete(id);
+    if (!deleted) {
+      return res.status(404).json({ error: "Task not found" });
+    }
+   
+    res.status(200).json({ success: true, id });
   } catch (error) {
-    next(error)
+    console.error("Error deleting task:", error);
+    next(error);
   }
 }

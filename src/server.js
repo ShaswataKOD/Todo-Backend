@@ -4,7 +4,7 @@ import dotenv from 'dotenv'
 import taskRouter from './routes/routes.js'
 import { errorHandler } from './errorHandler/errorHandling.js'
 import connectDB from './db/mongoClient.js'
-import path from 'path'
+// import path from 'path'
 
 dotenv.config()
 
