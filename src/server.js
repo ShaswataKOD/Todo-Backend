@@ -1,14 +1,12 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
-import taskRouter from './routes/routes.js'
+import taskRouter from './routes/routers.js'
 import { errorHandler } from './errorHandler/errorHandling.js'
 import connectDB from './db/mongoClient.js'
-// import path from 'path'
+
 
 dotenv.config()
-
-// dotenv.config();
 
 console.log('MONGO_URI:', process.env.MONGO_URI)
 console.log('PORT:', process.env.PORT)

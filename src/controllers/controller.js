@@ -176,7 +176,7 @@
 
 // use MongoDB to perform CRUD
 
-import Task from '../models/task.js'
+import Task from '../models/taskModel.js'
 
 //POST
 export async function createTasks(req, res, next) {

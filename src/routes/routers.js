@@ -8,11 +8,11 @@ import {
   searchTasks,
   updateTask,
   deleteTask
-} from '../controllers/controller.js';
+} from '../controllers/controller.js'
 
 
 
-import { todoCreateSchema,todoUpdateSchema } from '../validation/validateRequest.js';
+import { todoCreateSchema,todoUpdateSchema } from '../Middleware/validateRequest.js';
 //validation is 
 
 
