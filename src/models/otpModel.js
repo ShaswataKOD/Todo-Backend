@@ -1,19 +1,15 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose'
 
-const otpSchema = new mongoose.Schema({
-  email: { type: String, required: true },
-  otp: { type: String, required: true },
-}, {
-  timestamps: true
-});
+const otpSchema = new mongoose.Schema(
+  {
+    email: { type: String, required: true },
+    otp: { type: String, required: true },
+    isUsed : {type:Boolean,default:false,required: true}
+  },
+  {
+    timestamps: true,
+  }
+)
 
-// ✅ Remove this pre-save hook, email is sent in controller
-// otpSchema.pre("save", async function (next) {
-//   if (this.isNew) {
-//     await sendVerificationEmail(this.email, this.otp);
-//   }
-//   next();
-// });
-
-const OTP = mongoose.model("OTP", otpSchema);
-export default OTP;
+const Otp = mongoose.model('OTP', otpSchema)
+export default Otp

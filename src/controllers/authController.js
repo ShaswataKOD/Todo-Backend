@@ -1,56 +1,39 @@
-import bcrypt from 'bcryptjs';
-import User from '../models/userModel.js';
-import OTP from '../models/otpModel.js';
+import bcrypt from 'bcryptjs'
+import User from '../models/userModel.js'
 
 export async function registerUser(req, res) {
   try {
-    const { name, email, password, otp } = req.body;
+    const { name, email, password } = req.body
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email })
     if (existingUser) {
-      return res.status(409).json({
-        success: false,
-        message: "User already exists",
-      });
-    }
-
-    // Check OTP validity
-    const recentOtp = await OTP.findOne({ email, otp }).sort({ createdAt: -1 });
-    if (!recentOtp) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid or expired OTP",
-      });
+      return res
+        .status(409)
+        .json({ success: false, message: 'User already exists' })
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10)
 
-    // Create new user
     const newUser = await User.create({
       name,
       email,
       password: hashedPassword,
-    });
-
-    // Delete the used OTP
-    // await OTP.deleteOne({ _id: recentOtp._id });
+      isVerified: false,
+    })
 
     res.status(201).json({
       success: true,
-      message: "User registered successfully",
+      message: 'User registered successfully. User is not verified yet.',
       user: {
         id: newUser._id,
         name: newUser.name,
         email: newUser.email,
       },
-    });
+    })
   } catch (err) {
-    console.error("Registration error:", err.message);
-    res.status(500).json({
-      success: false,
-      message: "Registration failed",
-    });
+    console.error('Registration error:', err.message)
+    res.status(500).json({ success: false, message: 'Registration failed' })
   }
 }
