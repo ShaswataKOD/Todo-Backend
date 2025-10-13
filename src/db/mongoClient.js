@@ -1,9 +1,11 @@
+import dotenv from 'dotenv' // import this first to resolve any issue
+
+dotenv.config()
+
 import mongoose from 'mongoose'
-// import dotenv from 'dotenv/config'
 
-// dotenv.config()
 
-const URI =  // add the URI hardcoded for now here
+const URI =process.env.URI
 
 const connectDB = async () => {
   try {
