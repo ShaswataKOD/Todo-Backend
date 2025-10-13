@@ -1,5 +1,4 @@
-import mongoose from "mongoose"
-import sendVerificationEmail from "../utils/VerificationMail.js"
+import mongoose from "mongoose";
 
 const otpSchema = new mongoose.Schema({
   email: { type: String, required: true },
@@ -7,18 +6,17 @@ const otpSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    expires: 300, // 5 minutes
-  }
+    expires: 0 // 5 minutes
+  },
 });
 
-
-otpSchema.pre("save", async function (next) {
-  if (this.isNew) {
-    await sendVerificationEmail(this.email, this.otp);
-  }
-  next();
-});
-
+// ✅ Remove this pre-save hook, email is sent in controller
+// otpSchema.pre("save", async function (next) {
+//   if (this.isNew) {
+//     await sendVerificationEmail(this.email, this.otp);
+//   }
+//   next();
+// });
 
 const OTP = mongoose.model("OTP", otpSchema);
-export default OTP; 
+export default OTP;
