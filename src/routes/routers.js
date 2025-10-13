@@ -8,7 +8,7 @@ import {
   searchTasks,
   updateTask,
   deleteTask
-} from '../controllers/controller.js'
+} from '../controllers/taksController.js'
 
 
 
