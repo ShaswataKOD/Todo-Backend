@@ -9,6 +9,7 @@ export async function sendOTP(req, res) {
 
     // Check if user already registered
     const userExists = await User.findOne({ email });
+    
     if (userExists) {
       return res.status(400).json({
         success: false,
@@ -24,7 +25,9 @@ export async function sendOTP(req, res) {
     });
 
     // Save OTP
-    await OTP.create({ email, otp });
+    const otp2 = await OTP.create({ email, otp });
+
+    otp2.save()
 
     // Send OTP
     await sendVerificationEmail(email, otp);
