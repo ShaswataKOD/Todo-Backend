@@ -13,7 +13,7 @@ export async function registerUser(req, res) {
         .json({ success: false, message: 'User already exists' })
     }
 
-    // Hash password
+    
     const hashedPassword = await bcrypt.hash(password, 10)
 
     const newUser = await User.create({
