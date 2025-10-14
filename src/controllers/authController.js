@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs'
 import User from '../models/userModel.js'
-import jwt, { JsonWebTokenError } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 
 export async function registerUser(req, res) {
   try {
@@ -61,4 +61,3 @@ export async function loginUser(req, res) {
     res.status(500).json({ error: 'Login failed' })
   }
 }
-
