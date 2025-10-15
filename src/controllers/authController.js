@@ -1,6 +1,9 @@
 import bcrypt from 'bcryptjs'
 import User from '../models/userModel.js'
 import jwt from 'jsonwebtoken'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 export async function registerUser(req, res) {
   try {
@@ -40,24 +43,39 @@ export async function registerUser(req, res) {
 
 export async function loginUser(req, res) {
   try {
-    const { username, password } = req.body
+    const { email, password } = req.body
 
-    const user = await User.findOne({ username })
+    const user = await User.findOne({ email })
 
     if (!user) {
-      return res.status(401).json({ error: 'Authentication Error' })
+      return res.status(404).json({ error: 'User with this email not found' })
+    }
+
+    if (!user.isVerified) {
+      return res.status(403).json({ error: 'User is not verified' })
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password)
 
     if (!passwordMatch) {
-      return res.status(401).json({ error: 'Authentication Failed' })
+      return res.status(401).json({ error: 'Password did not match' })
     }
 
-    const token = jwt.sign({ userId: user._id }, 'fdfg', { expiresIn: '1h' })
+    const accessToken = jwt.sign({ userId: user._id }, '12345', {
+      expiresIn: '1h',
+    })
 
-    res.status(200).json({ token })
+    const refreshToken = jwt.sign({ userId: user._id }, '123456', {
+      expiresIn: '60d',
+    })
+
+    return res.status(200).json({
+      message: 'Login successful',
+      accessToken,
+      refreshToken,
+    })
   } catch (error) {
-    res.status(500).json({ error: 'Login failed' })
+    console.error('Login error:', error)
+    return res.status(500).json({ error: 'Login failed' })
   }
 }

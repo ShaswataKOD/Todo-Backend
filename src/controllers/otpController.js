@@ -161,8 +161,6 @@ export async function resetPassword(req, res) {
   }
 }
 
-
-
 // not working correctly
 
 export async function forgotPassword(req, res) {
@@ -192,4 +190,3 @@ export async function forgotPassword(req, res) {
     res.status(400).json({ success: false, message: err.message })
   }
 }
-
