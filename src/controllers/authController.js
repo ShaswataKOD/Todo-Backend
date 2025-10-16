@@ -81,7 +81,7 @@ export async function loginUser(req, res) {
 
     const accessToken = jwt.sign(
       { userId: user._id },
-      process.env.accessToken,
+      process.env.ACESS_TOKEN_KEY,
       {
         expiresIn: '5h',
       }
@@ -89,7 +89,7 @@ export async function loginUser(req, res) {
 
     const refreshToken = jwt.sign(
       { userId: user._id },
-      process.env.refreshToken,
+      process.env.REFRESH_TOKEN_KEY,
       {
         expiresIn: '60d',
       }
