@@ -9,15 +9,7 @@ import {
   updateTask,
   deleteTask
 } from '../controllers/taksController.js'
-
-
-
 import { todoCreateSchema,todoUpdateSchema } from '../Middleware/validateRequest.js';
-//validation is 
-
-
-// todoCreateSchema,
-// updateTask,
 
 const router = express.Router();
 

@@ -8,15 +8,15 @@ dotenv.config()
 export async function registerUser(req, res) {
   try {
     const { name, email, password } = req.body
-
-    // Check if user already exists
     const existingUser = await User.findOne({ email })
+
     if (existingUser) {
       return res
         .status(409)
         .json({ success: false, message: 'User already exists' })
     }
 
+    // const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(password, 10)
 
     const newUser = await User.create({
@@ -44,7 +44,6 @@ export async function registerUser(req, res) {
 export async function loginUser(req, res) {
   try {
     const { email, password } = req.body
-
     const user = await User.findOne({ email })
 
     if (!user) {
@@ -62,7 +61,7 @@ export async function loginUser(req, res) {
     }
 
     const accessToken = jwt.sign({ userId: user._id }, '12345', {
-      expiresIn: '1h',
+      expiresIn: '5h',
     })
 
     const refreshToken = jwt.sign({ userId: user._id }, '123456', {

@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 
 async function sendVerificationEmail(email, otp) {
+  
   try {
     const templatePath = path.join(
       process.cwd(),
@@ -16,7 +17,8 @@ async function sendVerificationEmail(email, otp) {
     const mailResponse = await mailSender(email, 'Your OTP Code', html)
 
     console.log('Email sent: ', mailResponse.messageId)
-  } catch (err) {
+  } 
+  catch (err) {
     console.error('Email send failed:', err.message)
     throw err
   }

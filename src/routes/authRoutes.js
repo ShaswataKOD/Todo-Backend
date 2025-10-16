@@ -5,11 +5,13 @@ import {
   sendOtp,
   VerifyOtp,
 } from '../controllers/otpController.js'
-import UserValidations from '../Middleware/userValidator.js'
+
+import { validateSignUpRequest, validateLoginRequest, validateResetPasswordRequest } from '../Middleware/userValidator.js'
+
 
 const router = express.Router()
 
-const userValidations = new UserValidations()
+// const userValidations = new UserValidations()
 // userValidations.validateSignUpRequest,
 // userValidations.validateLoginRequest,
 
@@ -17,13 +19,13 @@ const userValidations = new UserValidations()
 // need to fix the validation codes 
 
 
-router.post('/register',  registerUser)
-router.post('/login',  loginUser)
+router.post('/register',  validateSignUpRequest,registerUser)
+router.post('/login', validateLoginRequest ,loginUser)
 router.post('/send-otp', sendOtp)
 router.post('/verify-otp', VerifyOtp)
 router.post(
   '/reset-password',
-  userValidations.validateResetPasswordRequest,
+  validateResetPasswordRequest,
   resetPassword
 )
 
