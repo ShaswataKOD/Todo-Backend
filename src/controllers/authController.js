@@ -1,13 +1,15 @@
 import bcrypt from 'bcryptjs'
 import User from '../models/userModel.js'
-import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
+import jwt from 'jsonwebtoken'
 
 dotenv.config()
 
 export async function registerUser(req, res) {
   try {
     const { name, email, password } = req.body
+
+    console.log({ name, email, password })
     const existingUser = await User.findOne({ email })
 
     if (existingUser) {
@@ -16,8 +18,17 @@ export async function registerUser(req, res) {
         .json({ success: false, message: 'User already exists' })
     }
 
-    // const salt = await bcrypt.genSalt(10)
-    const hashedPassword = await bcrypt.hash(password, 10)
+    const salt = await bcrypt.genSalt(1)
+    console.log({ salt })
+    const hashedPassword = await bcrypt.hash(password, salt)
+
+    console.log({ hashedPassword })
+
+    const isT = await bcrypt.compare(password, hashedPassword)
+
+    console.log({ isT })
+
+    // {hashedPassword: '$2b$04$1cfv5zUBQdBtIN/5qnKWA.mONcoE4gMcWvL2qjUvyKPhhamT2KKcW'}
 
     const newUser = await User.create({
       name,
@@ -54,19 +65,35 @@ export async function loginUser(req, res) {
       return res.status(403).json({ error: 'User is not verified' })
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password)
+    const hash = user.password
+
+    console.log({ password, hash, user })
+
+    const passwordMatch = await bcrypt.compare(password, hash)
+
+    console.log({ passwordMatch })
+
+    // passwordMatch = true
 
     if (!passwordMatch) {
       return res.status(401).json({ error: 'Password did not match' })
     }
 
-    const accessToken = jwt.sign({ userId: user._id }, '12345', {
-      expiresIn: '5h',
-    })
+    const accessToken = jwt.sign(
+      { userId: user._id },
+      process.env.accessToken,
+      {
+        expiresIn: '5h',
+      }
+    )
 
-    const refreshToken = jwt.sign({ userId: user._id }, '123456', {
-      expiresIn: '60d',
-    })
+    const refreshToken = jwt.sign(
+      { userId: user._id },
+      process.env.refreshToken,
+      {
+        expiresIn: '60d',
+      }
+    )
 
     return res.status(200).json({
       message: 'Login successful',
@@ -77,4 +104,33 @@ export async function loginUser(req, res) {
     console.error('Login error:', error)
     return res.status(500).json({ error: 'Login failed' })
   }
+}
+
+//work left to do
+
+export async function generateRefreshToken(req, res) {
+  try {
+    const { refreshToken } = req.body
+
+    if (!refreshToken) {
+      res.status(401)
+      return next()
+    }
+
+    const payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_KEY)
+    const newAcessToken = jwt.sign(
+      { userId: user._id },
+      process.env.ACESS_TOKEN_KEY,
+      {
+        expiresIn: '2d',
+      }
+    )
+    const newRefreshToken = jwt.sign(
+      { userId: user._id },
+      process.env.REFRESH_TOKEN_KEY,
+      {
+        expiresIn: '60d',
+      }
+    )
+  } catch (error) {}
 }
