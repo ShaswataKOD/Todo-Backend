@@ -4,6 +4,7 @@ import {
   resetPassword,
   sendOtp,
   VerifyOtp,
+  forgotPassword
 } from '../controllers/otpController.js'
 
 import { validateSignUpRequest, validateLoginRequest, validateResetPasswordRequest } from '../Middleware/userValidator.js'
@@ -28,5 +29,7 @@ router.post(
   validateResetPasswordRequest,
   resetPassword
 )
+
+router.post("/forgotpassword",forgotPassword)
 
 export default router
