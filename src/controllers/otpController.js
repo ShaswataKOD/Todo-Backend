@@ -7,6 +7,7 @@ import bcrypt from 'bcryptjs'
 
 // utility  function to make otp
 // need to be moived
+
 export async function sendOTPInternal(email) {
   const otp = otpGenerator.generate(6, {
     upperCaseAlphabets: false,
@@ -18,7 +19,6 @@ export async function sendOTPInternal(email) {
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000)
 
   await Otp.create({ email, otp, isUsed: false, expiresAt })
-
   await sendVerificationEmail(email, otp)
 }
 
@@ -30,12 +30,15 @@ export async function sendOtp(req, res) {
 
     const user = await User.findOne({ email }) // searching if that particular user exists
 
-    if (!user)
+    if (!user) {
       return res.status(400).json({ success: false, message: 'User not found' })
-    if (user.isVerified)
+    }
+
+    if (user.isVerified) {
       return res
         .status(400)
         .json({ success: false, message: 'User already verified' })
+    }
 
     await sendOTPInternal(email)
 
@@ -46,59 +49,11 @@ export async function sendOtp(req, res) {
   }
 }
 
-// separate route for verification of otp
-
-// export async function VerifyOtp(req, res) {
-//   const { email, otp } = req.body
-
-//   try {
-//     const user = await User.findOne({ email })
-
-//     if (!user) {
-//       return res.status(400).json({ success: false, message: 'User not found' })
-//     }
-
-//     //wha if no user
-//     const otpRecord = await Otp.findOne({ email }).sort({ createdAt: -1 })
-
-//     if (!otpRecord)
-//       return res
-//         .status(400)
-//         .json({ success: false, message: 'No OTP found. Request a new one.' })
-
-//     if (otpRecord.isUsed)
-//       return res
-//         .status(400)
-//         .json({ success: false, message: 'OTP already used' })
-
-//     if (otpRecord.expiresAt < new Date())
-//       return res.status(400).json({ success: false, message: 'OTP expired' })
-//     if (otpRecord.otp !== otp)
-//       return res.status(400).json({ success: false, message: 'Invalid OTP' })
-
-//     // redundant just fr fun
-//     otpRecord.isUsed = true
-//     await otpRecord.save()
-
-//     user.isVerified = true
-//     await user.save()
-
-//     res.status(200).json({
-//       success: true,
-//       message: 'OTP verified successfully. User is now verified.',
-//     })
-//   } catch (err) {
-//     console.error('OTP verification error:', err.message)
-//     res.status(500).json({ success: false, message: 'OTP verification failed' })
-//   }
-// }
-
 export async function VerifyOtp(req, res) {
   const { email, otp } = req.body
 
   try {
     const user = await verifyOtpForEmail(email, otp)
-
     // Mark user as verified if needed
     user.isVerified = true
     await user.save()
@@ -116,6 +71,7 @@ export async function VerifyOtp(req, res) {
 // for forget pssws reuse the verify otp and then move the user to the next route to reset
 
 export async function resetPassword(req, res) {
+
   const { email, currentPassword, newPassword } = req.body
 
   try {
@@ -136,7 +92,9 @@ export async function resetPassword(req, res) {
         .status(403)
         .json({ success: false, message: 'Email not verified' })
     }
+
     const isMatch = await bcrypt.compare(currentPassword, user.password)
+
     if (!isMatch) {
       return res
         .status(401)
@@ -147,6 +105,7 @@ export async function resetPassword(req, res) {
     const hashedPassword = await bcrypt.hash(newPassword, salt)
 
     user.password = hashedPassword
+
     await user.save()
 
     return res.status(200).json({
@@ -161,27 +120,21 @@ export async function resetPassword(req, res) {
   }
 }
 
-
-
 // not working correctly
 
 export async function forgotPassword(req, res) {
   const { email, otp, newPassword } = req.body
 
   try {
-    // Verify OTP (throws error if invalid)
     await verifyOtpForEmail(email, otp)
 
-    // Find the user
     const user = await User.findOne({ email })
     if (!user)
       return res.status(404).json({ success: false, message: 'User not found' })
 
-    // Hash new password
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(newPassword, salt)
 
-    // Update user password
     user.password = hashedPassword
     await user.save()
 
@@ -192,4 +145,3 @@ export async function forgotPassword(req, res) {
     res.status(400).json({ success: false, message: err.message })
   }
 }
-

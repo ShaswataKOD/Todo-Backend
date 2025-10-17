@@ -178,77 +178,87 @@
 
 import Task from '../models/taskModel.js'
 
-//POST
 export async function createTasks(req, res, next) {
   try {
-    const { title, priority, tags, isCompleted } = req.body;
+    const { title, priority, tags, isCompleted } = req.body
+    const userId = req.userId
 
-    const newTask = new Task({ title, priority, tags, isCompleted });
-    const savedTask = await newTask.save();
+    const newTask = new Task({
+      title,
+      priority,
+      tags,
+      isCompleted,
+      userId,
+    })
 
-    res.status(201).json(savedTask);
+    const savedTask = await newTask.save()
+
+    res.status(201).json(savedTask)
   } catch (error) {
-    console.error("Error creating task:", error);
-    res.status(400).json({ error: "Failed to create task" });
+    console.error('Error creating task:', error)
+    res.status(400).json({ error: 'Failed to create task' })
   }
 }
-
-
-// GET
 
 // get all tasks
 
 export async function readTask(req, res, next) {
   try {
-    const data = await Task.find().sort({ createdAt: -1 })
+    const userId = req.userId
 
-    res.status(200).json(data)
+    const tasks = await Task.find({ userId }).sort({ createdAt: -1 })
+
+    res.status(200).json(tasks)
   } catch (error) {
     next(error)
   }
 }
 
-// nnow let us get the search feature right using regex
 export async function searchTasks(req, res, next) {
   try {
-    const { title, priority, tags } = req.query;
-
-    const filter = {};
+    const { title, priority, tags } = req.query
+    const userId = req.userId
+    const filter = { userId }
 
     if (title) {
-      filter.title = { $regex: title, $options: 'i' };
+      filter.title = { $regex: title, $options: 'i' }
     }
 
     if (priority) {
-      filter.priority = priority;
+      filter.priority = priority
     }
 
     if (tags) {
-      const tagList = tags.split(',').map(tag => tag.trim());
-      filter.tags = { $all: tagList };
+      const tagList = tags.split(',').map((tag) => tag.trim())
+      filter.tags = { $all: tagList }
     }
 
-    const filteredTask = await Task.find(filter).sort({ createdAt: -1 });
+    const filteredTask = await Task.find(filter).sort({ createdAt: -1 })
 
-    res.status(200).json(filteredTask);
+    res.status(200).json(filteredTask)
   } catch (error) {
-    next(error);
+    next(error)
   }
 }
 
 //edit functionality //modify the front end url with UI parameter
-
 export async function updateTask(req, res, next) {
   try {
     const { id } = req.params
     const updatedData = req.body
+    const userId = req.userId
 
-    const UpdatedTasks = await Task.findByIdAndUpdate(id, updatedData, {
-      new: true,
-      runValidators: true,
-    })
+    const updatedTask = await Task.findOneAndUpdate(
+      { _id: id, userId },
+      updatedData,
+      { new: true, runValidators: true }
+    )
 
-    res.status(200).json(UpdatedTasks)
+    if (!updatedTask) {
+      return res.status(404).json({ error: 'Task not found or unauthorized' })
+    }
+
+    res.status(200).json(updatedTask)
   } catch (error) {
     next(error)
   }
@@ -256,15 +266,19 @@ export async function updateTask(req, res, next) {
 
 export async function deleteTask(req, res, next) {
   try {
-    const { id } = req.params;
-    const deleted = await Task.findByIdAndDelete(id);
+    const { id } = req.params
+    const userId = req.userId
+
+    const deleted = await Task.findOneAndDelete({ _id: id, userId }) // one id for task from url parameter and other one is from the token
+    // coming in from the header of the request
+
     if (!deleted) {
-      return res.status(404).json({ error: "Task not found" });
+      return res.status(404).json({ error: 'Task not found or unauthorized' })
     }
-   
-    res.status(200).json({ success: true, id });
+
+    res.status(200).json({ success: true, id })
   } catch (error) {
-    console.error("Error deleting task:", error);
-    next(error);
+    console.error('Error deleting task:', error)
+    next(error)
   }
 }

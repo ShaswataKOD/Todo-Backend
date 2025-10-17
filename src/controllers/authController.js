@@ -1,20 +1,34 @@
 import bcrypt from 'bcryptjs'
 import User from '../models/userModel.js'
+import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
+
+dotenv.config()
 
 export async function registerUser(req, res) {
   try {
     const { name, email, password } = req.body
 
-    // Check if user already exists
+    console.log({ name, email, password })
     const existingUser = await User.findOne({ email })
+
     if (existingUser) {
       return res
         .status(409)
         .json({ success: false, message: 'User already exists' })
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+    const salt = await bcrypt.genSalt(1)
+    console.log({ salt })
+    const hashedPassword = await bcrypt.hash(password, salt)
+
+    console.log({ hashedPassword })
+
+    const isT = await bcrypt.compare(password, hashedPassword)
+
+    console.log({ isT })
+
+    // {hashedPassword: '$2b$04$1cfv5zUBQdBtIN/5qnKWA.mONcoE4gMcWvL2qjUvyKPhhamT2KKcW'}
 
     const newUser = await User.create({
       name,
@@ -40,24 +54,83 @@ export async function registerUser(req, res) {
 
 export async function loginUser(req, res) {
   try {
-    const { username, password } = req.body
-
-    const user = await User.findOne({ username })
+    const { email, password } = req.body
+    const user = await User.findOne({ email })
 
     if (!user) {
-      return res.status(401).json({ error: 'Authentication Error' })
+      return res.status(404).json({ error: 'User with this email not found' })
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password)
+    if (!user.isVerified) {
+      return res.status(403).json({ error: 'User is not verified' })
+    }
+
+    const hash = user.password
+
+    console.log({ password, hash, user })
+
+    const passwordMatch = await bcrypt.compare(password, hash)
+
+    console.log({ passwordMatch })
+
+    // passwordMatch = true
 
     if (!passwordMatch) {
-      return res.status(401).json({ error: 'Authentication Failed' })
+      return res.status(401).json({ error: 'Password did not match' })
     }
 
-    const token = jwt.sign({ userId: user._id }, 'fdfg', { expiresIn: '1h' })
+    const accessToken = jwt.sign(
+      { userId: user._id },
+      process.env.ACESS_TOKEN_KEY,
+      {
+        expiresIn: '5h',
+      }
+    )
 
-    res.status(200).json({ token })
+    const refreshToken = jwt.sign(
+      { userId: user._id },
+      process.env.REFRESH_TOKEN_KEY,
+      {
+        expiresIn: '60d',
+      }
+    )
+
+    return res.status(200).json({
+      message: 'Login successful',
+      accessToken,
+      refreshToken,
+    })
   } catch (error) {
-    res.status(500).json({ error: 'Login failed' })
+    console.error('Login error:', error)
+    return res.status(500).json({ error: 'Login failed' })
   }
+}
+
+//work left to do
+
+export async function generateRefreshToken(req, res) {
+  try {
+    const { refreshToken } = req.body
+
+    if (!refreshToken) {
+      res.status(401)
+      return next()
+    }
+
+    const payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_KEY)
+    const newAcessToken = jwt.sign(
+      { userId: user._id },
+      process.env.ACESS_TOKEN_KEY,
+      {
+        expiresIn: '2d',
+      }
+    )
+    const newRefreshToken = jwt.sign(
+      { userId: user._id },
+      process.env.REFRESH_TOKEN_KEY,
+      {
+        expiresIn: '60d',
+      }
+    )
+  } catch (error) {}
 }
