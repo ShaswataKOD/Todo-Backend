@@ -8,6 +8,7 @@ import {
 } from '../controllers/otpController.js'
 
 import { validateSignUpRequest, validateLoginRequest, validateResetPasswordRequest } from '../Middleware/userValidator.js'
+import verifyToken from '../Middleware/authValidator.js'
 
 
 const router = express.Router()
@@ -26,6 +27,7 @@ router.post('/send-otp', sendOtp)
 router.post('/verify-otp', VerifyOtp)
 router.post(
   '/reset-password',
+  verifyToken,
   validateResetPasswordRequest,
   resetPassword
 )

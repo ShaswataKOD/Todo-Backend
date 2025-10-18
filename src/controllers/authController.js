@@ -81,7 +81,7 @@ export async function loginUser(req, res) {
 
     const accessToken = jwt.sign(
       { userId: user._id },
-      process.env.ACESS_TOKEN_KEY,
+      process.env.ACESS_TOKEN_KEY || '12345',
       {
         expiresIn: '5h',
       }
@@ -89,7 +89,7 @@ export async function loginUser(req, res) {
 
     const refreshToken = jwt.sign(
       { userId: user._id },
-      process.env.REFRESH_TOKEN_KEY,
+      process.env.REFRESH_TOKEN_KEY || '123456',
       {
         expiresIn: '60d',
       }
@@ -117,7 +117,10 @@ export async function generateRefreshToken(req, res) {
       return next()
     }
 
-    const payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_KEY)
+    const payload = jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_KEY || '12345'
+    )
     const newAcessToken = jwt.sign(
       { userId: user._id },
       process.env.ACESS_TOKEN_KEY,
@@ -127,7 +130,7 @@ export async function generateRefreshToken(req, res) {
     )
     const newRefreshToken = jwt.sign(
       { userId: user._id },
-      process.env.REFRESH_TOKEN_KEY,
+      process.env.REFRESH_TOKEN_KEY || '123456',
       {
         expiresIn: '60d',
       }

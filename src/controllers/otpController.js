@@ -68,19 +68,26 @@ export async function VerifyOtp(req, res) {
   }
 }
 
-
 // this needed to use authentication thatis acess token
+
 export async function resetPassword(req, res) {
-  const { email, currentPassword, newPassword } = req.body
+  const { currentPassword, newPassword } = req.body
 
   try {
-    if (!email || !currentPassword || !newPassword) {
+    if (!currentPassword || !newPassword) {
       return res
         .status(400)
         .json({ success: false, message: 'All fields are required' })
     }
+    //find the user by the Id of the user
+    const userID = req.userId
 
-    const user = await User.findOne({ email })
+    if (!userID) {
+      return res
+        .status(401)
+        .json({ succes: false, error: 'Unauthorised to acess the data' })
+    }
+    const user = await User.findById(userID)
 
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' })
@@ -121,6 +128,8 @@ export async function resetPassword(req, res) {
 
 // working fixed
 
+// what if the user is already verified then how is this going to handle that issue ?
+// ans - design the UI such that this is not reflected
 export async function forgotPassword(req, res) {
   // get the request from the user
   const { email, otp, currentPassword, newPassword } = req.body
