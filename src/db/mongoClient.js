@@ -4,8 +4,7 @@ import mongoose from 'mongoose'
 dotenv.config()
 
 const URI =
-  process.env.URI ||
-  'mongodb+srv://shaswata:shaswata707@cluster0.5td3woj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
+  process.env.URI
 
 const connectDB = async () => {
   try {

@@ -6,12 +6,12 @@ dotenv.config()
 const mailSender = async (email, subject, html) => {
   try {
     const transporter = nodemailer.createTransport({
-      host: process.env.MAIL_HOST || 'smtp.gmail.com',
+      host: process.env.MAIL_HOST 
       port: process.env.MAIL_PORT || 587,
       secure: false,
       auth: {
-        user: process.env.MAIL_USER || 'shaswata@itobuz.com',
-        pass: process.env.MAIL_PASS || 'syqs kusp iqrt ffny',
+        user: process.env.MAIL_USER ,
+        pass: process.env.MAIL_PASS 
       },
     })
 
