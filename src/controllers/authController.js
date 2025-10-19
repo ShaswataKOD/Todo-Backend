@@ -83,7 +83,7 @@ export async function loginUser(req, res) {
       { userId: user._id },
       process.env.ACESS_TOKEN_KEY || '12345',
       {
-        expiresIn: '5h',
+        expiresIn: '20s',
       }
     )
 
@@ -110,30 +110,37 @@ export async function loginUser(req, res) {
 
 export async function generateRefreshToken(req, res) {
   try {
-    const { refreshToken } = req.body
+    const refreshToken = req.headers['refresh-token']
+    if (!refreshToken)
+      return res.status(401).json({ message: 'No refresh token provided' })
 
-    if (!refreshToken) {
-      res.status(401)
-      return next()
-    }
-
-    const payload = jwt.verify(
+    const decoded = jwt.verify(
       refreshToken,
-      process.env.REFRESH_TOKEN_KEY || '12345'
+      process.env.REFRESH_TOKEN_KEY || '123456'
     )
-    const newAcessToken = jwt.sign(
-      { userId: user._id },
-      process.env.ACESS_TOKEN_KEY,
-      {
-        expiresIn: '2d',
-      }
+
+    const newAccessToken = jwt.sign(
+      { userId: decoded.userId },
+      process.env.ACCESS_TOKEN_KEY || '12345',
+      { expiresIn: '2m' }
     )
+
     const newRefreshToken = jwt.sign(
-      { userId: user._id },
+      { userId: decoded.userId },
       process.env.REFRESH_TOKEN_KEY || '123456',
-      {
-        expiresIn: '60d',
-      }
+      { expiresIn: '60d' }
     )
-  } catch (error) {}
+
+    res.header('access-token', newAccessToken)
+    res.header('refresh-token', newRefreshToken)
+    return res
+      .status(200)
+      .json({
+        message: 'Tokens refreshed',
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+      })
+  } catch (error) {
+    return res.status(403).json({ message: 'Invalid token' })
+  }
 }
