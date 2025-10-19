@@ -29,3 +29,5 @@ export async function verifyOtpForEmail(email, otp) {
 
   return user
 }
+
+export default verifyOtpForEmail

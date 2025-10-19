@@ -2,33 +2,27 @@ import bcrypt from 'bcryptjs'
 import User from '../models/userModel.js'
 import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
+import createError from '../utils/createError.js'
 
 dotenv.config()
 
-export async function registerUser(req, res) {
+export async function registerUser(req, res, next) {
   try {
     const { name, email, password } = req.body
 
-    console.log({ name, email, password })
     const existingUser = await User.findOne({ email })
 
     if (existingUser) {
-      return res
-        .status(409)
-        .json({ success: false, message: 'User already exists' })
+      throw createError(409, 'User already Exists')
+      // return res
+      //   .status(409)
+      //   .json({ success: false, message: 'User already exists' })
     }
 
-    const salt = await bcrypt.genSalt(1)
-    console.log({ salt })
+    const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(password, salt)
 
-    console.log({ hashedPassword })
-
     const isT = await bcrypt.compare(password, hashedPassword)
-
-    console.log({ isT })
-
-    // {hashedPassword: '$2b$04$1cfv5zUBQdBtIN/5qnKWA.mONcoE4gMcWvL2qjUvyKPhhamT2KKcW'}
 
     const newUser = await User.create({
       name,
@@ -39,7 +33,7 @@ export async function registerUser(req, res) {
 
     res.status(201).json({
       success: true,
-      message: 'User registered successfully. User is not verified yet.',
+      message: 'User registered successfully.',
       user: {
         id: newUser._id,
         name: newUser.name,
@@ -47,36 +41,32 @@ export async function registerUser(req, res) {
       },
     })
   } catch (err) {
-    console.error('Registration error:', err.message)
-    res.status(500).json({ success: false, message: 'Registration failed' })
+    // console.error('Registration error:', err.message)
+    // res.status(500).json({ success: false, message: 'Registration failed' })
+    next(err)
   }
 }
 
 export async function loginUser(req, res) {
   try {
     const { email, password } = req.body
+
     const user = await User.findOne({ email })
 
     if (!user) {
-      return res.status(404).json({ error: 'User with this email not found' })
+      throw createError(404, 'User not found')
     }
 
     if (!user.isVerified) {
-      return res.status(403).json({ error: 'User is not verified' })
+      throw createError(403, 'User not found')
     }
 
     const hash = user.password
-
-    console.log({ password, hash, user })
-
     const passwordMatch = await bcrypt.compare(password, hash)
 
-    console.log({ passwordMatch })
-
-    // passwordMatch = true
-
     if (!passwordMatch) {
-      return res.status(401).json({ error: 'Password did not match' })
+      throw createError(404, 'Password did not match')
+      // return res.status(401).json({ error: 'Password did not match' })
     }
 
     const accessToken = jwt.sign(
@@ -101,18 +91,24 @@ export async function loginUser(req, res) {
       refreshToken,
     })
   } catch (error) {
-    console.error('Login error:', error)
-    return res.status(500).json({ error: 'Login failed' })
+    // console.error('Login error:', error)
+    // return res.status(500).json({ error: 'Login failed' })
+    next(error)
   }
 }
 
-//work left to do
+//work left to do cannot perform curd while we apply axios
 
 export async function generateRefreshToken(req, res) {
   try {
     const refreshToken = req.headers['refresh-token']
-    if (!refreshToken)
-      return res.status(401).json({ message: 'No refresh token provided' })
+
+    if (!refreshToken) {
+
+      throw createError(401, 'Refresh Token not found')
+
+    }
+    // return res.status(401).json({ message: 'No refresh token provided' })
 
     const decoded = jwt.verify(
       refreshToken,
@@ -133,14 +129,14 @@ export async function generateRefreshToken(req, res) {
 
     res.header('access-token', newAccessToken)
     res.header('refresh-token', newRefreshToken)
-    return res
-      .status(200)
-      .json({
-        message: 'Tokens refreshed',
-        accessToken: newAccessToken,
-        refreshToken: newRefreshToken,
-      })
+    
+    return res.status(200).json({
+      message: 'Tokens refreshed',
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    })
   } catch (error) {
-    return res.status(403).json({ message: 'Invalid token' })
+    // return res.status(403).json({ message: 'Invalid token' })
+    next(error)
   }
 }
