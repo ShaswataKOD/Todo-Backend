@@ -143,73 +143,145 @@ export async function resetPassword(req, res, next) {
 
 // what if the user is already verified then how is this going to handle that issue ?
 // ans - design the UI such that this is not reflected
+// export async function forgotPassword(req, res, next) {
+//   // get the request from the user
+//   const { email, otp, currentPassword, newPassword } = req.body
+//   // validate first once again
+//   try {
+//     if (!email || !newPassword) {
+//       throw createError(400, 'Enter correct email and password')
+//       // return res
+//       //   .status(400)
+//       //   .json({ success: false, message: 'Enter correct email and password' })
+//     }
+
+//     const user = await User.findOne({ email })
+
+//     if (!user.isVerified) {
+//       throw createError(403, 'Email not Verified')
+//       // return res
+//       //   .status(403)
+//       //   .json({ sucees: false, message: 'Email not verified' })
+//     }
+
+//     if (currentPassword) {
+
+//       const passMatch = await bcrypt.compare(currentPassword, user.password)
+
+//       if (!passMatch) {
+//         throw createError(401, 'Incorrect current password')
+//         // // return res
+//         //   .status(401)
+//         //   .json({ sucess: false, message: 'Incorrect current password' })
+//       }
+//     } 
+//     else if (otp) {
+
+//       await verifyOtpForEmail(email, otp)
+
+//       const otpRecord = await Otp.findOne({ email, otp }).sort({
+//         createdAt: -1,
+//       })
+
+//       if (otpRecord) {
+//         otpRecord.isUsed = true
+//         await otpRecord.save()
+//       }
+//     } else {
+//       throw createError(400, 'Provide correcct OTP or current password')
+//       // return res.status(400).json({
+//       //   succes: false,
+//       //   message: 'Provide correct Otp or current Password',
+//       // })
+//     }
+
+//     // hash the new passoword and then and save it in the schema
+//     const hashedPassword = await bcrypt.hash(newPassword, 10)
+//     user.password = hashedPassword
+
+//     await user.save()
+
+//     return res
+//       .status(200)
+//       .json({ sucees: true, message: 'password reset sucessful' })
+//   } 
+//   catch (error) {
+//     next(error)
+//     // console.log('Reset Password error', error.message)
+//     // return res
+//     //   .status(500)
+//     //   .json({ sucess: false, message: 'Internal server error' })
+//   }
+// }
+
+
+// modified the logic a little
+
 export async function forgotPassword(req, res, next) {
-  // get the request from the user
-  const { email, otp, currentPassword, newPassword } = req.body
-  // validate first once again
   try {
-    if (!email || !newPassword) {
-      throw createError(400, 'Enter correct email and password')
-      // return res
-      //   .status(400)
-      //   .json({ success: false, message: 'Enter correct email and password' })
+    const { email, otp, currentPassword, newPassword } = req.body;
+
+    if (!email) throw createError(400, 'Email is required');
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    // ----------------------
+    // STEP 1: Send OTP
+    // ----------------------
+    if (!otp && !newPassword && !currentPassword) {
+      const generatedOtp = otpGenerator.generate(6, {
+        upperCaseAlphabets: false,
+        lowerCaseAlphabets: false,
+        specialChars: false,
+        digits: true
+      });
+
+      const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
+
+      await Otp.create({ email, otp: generatedOtp, isUsed: false, expiresAt });
+      await sendVerificationEmail(email, generatedOtp);
+
+      return res.status(200).json({ success: true, message: 'OTP sent successfully' });
     }
 
-    const user = await User.findOne({ email })
-
-    if (!user.isVerified) {
-      throw createError(403, 'Email not Verified')
-      // return res
-      //   .status(403)
-      //   .json({ sucees: false, message: 'Email not verified' })
+    // ----------------------
+    // STEP 2: Verify OTP
+    // ----------------------
+    if (otp && !newPassword) {
+      await verifyOtpForEmail(email, otp);
+      return res.status(200).json({ success: true, message: 'OTP verified successfully' });
     }
 
+    // ----------------------
+    // STEP 3: Reset Password
+    // ----------------------
+    if (!newPassword) throw createError(400, 'New password is required for reset');
+
+    // if current password provided, check it
     if (currentPassword) {
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) throw createError(401, 'Incorrect current password');
+    } else if (otp) {
+      // verify OTP for security
+      await verifyOtpForEmail(email, otp);
 
-      const passMatch = await bcrypt.compare(currentPassword, user.password)
-
-      if (!passMatch) {
-        throw createError(401, 'Incorrect current password')
-        // // return res
-        //   .status(401)
-        //   .json({ sucess: false, message: 'Incorrect current password' })
-      }
-    } 
-    else if (otp) {
-
-      await verifyOtpForEmail(email, otp)
-
-      const otpRecord = await Otp.findOne({ email, otp }).sort({
-        createdAt: -1,
-      })
-
+      const otpRecord = await Otp.findOne({ email, otp }).sort({ createdAt: -1 });
       if (otpRecord) {
-        otpRecord.isUsed = true
-        await otpRecord.save()
+        otpRecord.isUsed = true;
+        await otpRecord.save();
       }
     } else {
-      throw createError(400, 'Provide correcct OTP or current password')
-      // return res.status(400).json({
-      //   succes: false,
-      //   message: 'Provide correct Otp or current Password',
-      // })
+      throw createError(400, 'Provide either current password or OTP');
     }
 
-    // hash the new passoword and then and save it in the schema
-    const hashedPassword = await bcrypt.hash(newPassword, 10)
-    user.password = hashedPassword
+    // hash and save new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
 
-    await user.save()
-
-    return res
-      .status(200)
-      .json({ sucees: true, message: 'password reset sucessful' })
-  } 
-  catch (error) {
-    next(error)
-    // console.log('Reset Password error', error.message)
-    // return res
-    //   .status(500)
-    //   .json({ sucess: false, message: 'Internal server error' })
+    return res.status(200).json({ success: true, message: 'Password reset successful' });
+  } catch (error) {
+    next(error);
   }
 }

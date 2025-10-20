@@ -3,7 +3,7 @@ import {
   loginSchema,
   resetPasswordSchema,
 } from './userValidationSchema.js'
-import bcrypt from 'bcryptjs'
+
 
 // Function to validate sign up request
 export const validateSignUpRequest = async (req, res, next) => {
