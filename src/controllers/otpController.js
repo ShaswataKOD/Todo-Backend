@@ -2,7 +2,7 @@ import otpGenerator from 'otp-generator'
 import Otp from '../models/otpModel.js'
 import User from '../models/userModel.js'
 import sendVerificationEmail from '../utils/VerificationMail.js'
-import verifyOtpForEmail  from '../utils/verifyOtp.js'
+import verifyOtpForEmail from '../utils/verifyOtp.js'
 import bcrypt from 'bcryptjs'
 import createError from '../utils/createError.js'
 
@@ -32,7 +32,7 @@ export async function sendOtp(req, res, next) {
       // return res.status(400).json({ success: false, message: 'User not found' })
     }
 
-    if (user.isVerified) {
+    if (!user.isVerified) {
       throw createError(404, 'User not Verified')
       // return res
       //   .status(400)
@@ -42,7 +42,6 @@ export async function sendOtp(req, res, next) {
     await sendOTPInternal(email)
 
     res.status(200).json({ success: true, message: 'OTP sent successfully' })
-
   } catch (err) {
     next(err)
     // console.error('Error sending OTP:', err)
@@ -51,13 +50,13 @@ export async function sendOtp(req, res, next) {
 }
 
 export async function VerifyOtp(req, res, next) {
-
   const { email, otp } = req.body
 
   try {
     const user = await verifyOtpForEmail(email, otp)
-    // Mark user as verified if needed
+
     user.isVerified = true
+
     await user.save()
 
     res.status(200).json({
@@ -74,18 +73,16 @@ export async function VerifyOtp(req, res, next) {
 // this needed to use authentication thatis acess token
 
 export async function resetPassword(req, res, next) {
-
   const { currentPassword, newPassword } = req.body
 
   try {
     if (!currentPassword || !newPassword) {
-
       throw createError(400, 'All fields are required')
       // return res
       //   .status(400)
       //   .json({ success: false, message: 'All fields are required' })
     }
-    //find the user by the Id of the user
+
     const userID = req.userId
 
     if (!userID) {
@@ -130,7 +127,6 @@ export async function resetPassword(req, res, next) {
       message: 'Password updated successfully',
     })
   } catch (err) {
-   
     next(err)
     //  console.error('Reset password error:', err.message)
     // return res
@@ -174,7 +170,7 @@ export async function resetPassword(req, res, next) {
 //         //   .status(401)
 //         //   .json({ sucess: false, message: 'Incorrect current password' })
 //       }
-//     } 
+//     }
 //     else if (otp) {
 
 //       await verifyOtpForEmail(email, otp)
@@ -204,7 +200,7 @@ export async function resetPassword(req, res, next) {
 //     return res
 //       .status(200)
 //       .json({ sucees: true, message: 'password reset sucessful' })
-//   } 
+//   }
 //   catch (error) {
 //     next(error)
 //     // console.log('Reset Password error', error.message)
@@ -214,74 +210,85 @@ export async function resetPassword(req, res, next) {
 //   }
 // }
 
-
 // modified the logic a little
 
 export async function forgotPassword(req, res, next) {
   try {
-    const { email, otp, currentPassword, newPassword } = req.body;
+    const { email, otp, currentPassword, newPassword } = req.body
 
-    if (!email) throw createError(400, 'Email is required');
+    if (!email) {
+      throw createError(400, 'Email is required')
+    }
 
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    const user = await User.findOne({ email })
 
-    // ----------------------
-    // STEP 1: Send OTP
-    // ----------------------
+    if (!user) {
+      throw createError(404, 'user not found')
+      // return res.status(404).json({ success: false, message: 'User not found' })
+    }
+
     if (!otp && !newPassword && !currentPassword) {
       const generatedOtp = otpGenerator.generate(6, {
         upperCaseAlphabets: false,
         lowerCaseAlphabets: false,
         specialChars: false,
-        digits: true
-      });
+        digits: true,
+      })
 
-      const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
+      const expiresAt = new Date(Date.now() + 5 * 60 * 1000) // 5 mins
 
-      await Otp.create({ email, otp: generatedOtp, isUsed: false, expiresAt });
-      await sendVerificationEmail(email, generatedOtp);
+      await Otp.create({ email, otp: generatedOtp, isUsed: false, expiresAt })
 
-      return res.status(200).json({ success: true, message: 'OTP sent successfully' });
+      await sendVerificationEmail(email, generatedOtp)
+
+      return res
+        .status(200)
+        .json({ success: true, message: 'OTP sent successfully' })
     }
 
-    // ----------------------
-    // STEP 2: Verify OTP
-    // ----------------------
     if (otp && !newPassword) {
-      await verifyOtpForEmail(email, otp);
-      return res.status(200).json({ success: true, message: 'OTP verified successfully' });
+      await verifyOtpForEmail(email, otp)
+
+      return res
+        .status(200)
+        .json({ success: true, message: 'OTP verified successfully' })
     }
 
-    // ----------------------
-    // STEP 3: Reset Password
-    // ----------------------
-    if (!newPassword) throw createError(400, 'New password is required for reset');
+    if (!newPassword) {
+      throw createError(400, 'New password is required for reset')
+    }
 
-    // if current password provided, check it
     if (currentPassword) {
-      const isMatch = await bcrypt.compare(currentPassword, user.password);
-      if (!isMatch) throw createError(401, 'Incorrect current password');
-    } else if (otp) {
-      // verify OTP for security
-      await verifyOtpForEmail(email, otp);
+      const isMatch = await bcrypt.compare(currentPassword, user.password)
 
-      const otpRecord = await Otp.findOne({ email, otp }).sort({ createdAt: -1 });
+      if (!isMatch) {
+        throw createError(401, 'Incorrect current password')
+      }
+    } else if (otp) {
+      await verifyOtpForEmail(email, otp)
+
+      const otpRecord = await Otp.findOne({ email, otp }).sort({
+        createdAt: -1,
+      })
+
       if (otpRecord) {
-        otpRecord.isUsed = true;
-        await otpRecord.save();
+        otpRecord.isUsed = true
+        await otpRecord.save()
       }
     } else {
-      throw createError(400, 'Provide either current password or OTP');
+      throw createError(400, 'Provide either current password or OTP')
     }
 
-    // hash and save new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
-    await user.save();
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
 
-    return res.status(200).json({ success: true, message: 'Password reset successful' });
+    user.password = hashedPassword
+
+    await user.save()
+
+    return res
+      .status(200)
+      .json({ success: true, message: 'Password reset successful' })
   } catch (error) {
-    next(error);
+    next(error)
   }
 }

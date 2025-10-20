@@ -17,6 +17,7 @@
 import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
 
+
 dotenv.config()
 
 function verifyToken(req, res, next) {
@@ -28,7 +29,9 @@ function verifyToken(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, process.env.ACESS_TOKEN_KEY || '12345')
+
     console.log(decoded)
+
     req.userId = decoded.userId
 
     next()

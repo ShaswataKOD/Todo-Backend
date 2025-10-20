@@ -65,7 +65,7 @@ export async function loginUser(req, res) {
     const passwordMatch = await bcrypt.compare(password, hash)
 
     if (!passwordMatch) {
-      throw createError(404, 'Password did not match')
+      throw createError(401, 'Password did not match')
       // return res.status(401).json({ error: 'Password did not match' })
     }
 
@@ -97,16 +97,14 @@ export async function loginUser(req, res) {
   }
 }
 
-//work left to do cannot perform curd while we apply axios
+//work left to do cannot perform curd while we apply axios as axios and fetch donot work together
 
 export async function generateRefreshToken(req, res) {
   try {
     const refreshToken = req.headers['refresh-token']
 
     if (!refreshToken) {
-
       throw createError(401, 'Refresh Token not found')
-
     }
     // return res.status(401).json({ message: 'No refresh token provided' })
 
@@ -129,7 +127,7 @@ export async function generateRefreshToken(req, res) {
 
     res.header('access-token', newAccessToken)
     res.header('refresh-token', newRefreshToken)
-    
+
     return res.status(200).json({
       message: 'Tokens refreshed',
       accessToken: newAccessToken,

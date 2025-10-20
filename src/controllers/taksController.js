@@ -195,8 +195,9 @@ export async function createTasks(req, res, next) {
 
     res.status(201).json(savedTask)
   } catch (error) {
-    console.error('Error creating task:', error)
-    res.status(400).json({ error: 'Failed to create task' })
+    next(error)
+    // console.error('Error creating task:', error)
+    // res.status(400).json({ error: 'Failed to create task' })
   }
 }
 
