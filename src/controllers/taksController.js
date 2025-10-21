@@ -270,8 +270,7 @@ export async function deleteTask(req, res, next) {
     const { id } = req.params
     const userId = req.userId
 
-    const deleted = await Task.findOneAndDelete({ _id: id, userId }) // one id for task from url parameter and other one is from the token
-    // coming in from the header of the request
+    const deleted = await Task.findOneAndDelete({ _id: id, userId })
 
     if (!deleted) {
       return res.status(404).json({ error: 'Task not found or unauthorized' })

@@ -21,6 +21,5 @@ export const validateRequest = (schema) => async (req, res, next) => {
   }
 };
 
-// this is to be imported in the server to use as middleware
 export const todoCreateSchema = validateRequest(createTasksSchema) 
 export const todoUpdateSchema = validateRequest(updateTasksSchema) 

@@ -1,6 +1,5 @@
 import * as yup from 'yup';
 
-//client side  validaton
 
 export const signUpSchema = yup.object({
   name: yup.string().required(),
