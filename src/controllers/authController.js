@@ -71,15 +71,15 @@ export async function loginUser(req, res) {
 
     const accessToken = jwt.sign(
       { userId: user._id },
-      process.env.ACESS_TOKEN_KEY || '12345',
+      process.env.ACCESS_TOKEN_KEY,
       {
-        expiresIn: '20s',
+        expiresIn: '2m',
       }
     )
 
     const refreshToken = jwt.sign(
       { userId: user._id },
-      process.env.REFRESH_TOKEN_KEY || '123456',
+      process.env.REFRESH_TOKEN_KEY,
       {
         expiresIn: '60d',
       }
@@ -97,8 +97,6 @@ export async function loginUser(req, res) {
   }
 }
 
-//work left to do cannot perform curd while we apply axios as axios and fetch donot work together
-
 export async function generateRefreshToken(req, res) {
   try {
     const refreshToken = req.headers['refresh-token']
@@ -107,26 +105,19 @@ export async function generateRefreshToken(req, res) {
       throw createError(401, 'Refresh Token not found')
     }
     // return res.status(401).json({ message: 'No refresh token provided' })
-
-    const decoded = jwt.verify(
-      refreshToken,
-      process.env.REFRESH_TOKEN_KEY || '123456'
-    )
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_KEY)
 
     const newAccessToken = jwt.sign(
       { userId: decoded.userId },
-      process.env.ACCESS_TOKEN_KEY || '12345',
+      process.env.ACCESS_TOKEN_KEY,
       { expiresIn: '2m' }
     )
 
     const newRefreshToken = jwt.sign(
       { userId: decoded.userId },
-      process.env.REFRESH_TOKEN_KEY || '123456',
+      process.env.REFRESH_TOKEN_KEY,
       { expiresIn: '60d' }
     )
-
-    res.header('access-token', newAccessToken)
-    res.header('refresh-token', newRefreshToken)
 
     return res.status(200).json({
       message: 'Tokens refreshed',

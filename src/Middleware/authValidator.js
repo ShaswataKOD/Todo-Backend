@@ -28,7 +28,7 @@ function verifyToken(req, res, next) {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.ACESS_TOKEN_KEY || '12345')
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_KEY || '12345')
 
     console.log(decoded)
 
