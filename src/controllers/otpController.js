@@ -6,7 +6,7 @@ import verifyOtpForEmail from '../utils/verifyOtp.js'
 import bcrypt from 'bcryptjs'
 import createError from '../utils/createError.js'
 
-export async function sendOTPInternal(email) {
+export async function sendOtpInternal(email) {
   const otp = otpGenerator.generate(6, {
     upperCaseAlphabets: false,
     lowerCaseAlphabets: false,
@@ -29,23 +29,17 @@ export async function sendOtp(req, res, next) {
 
     if (!user) {
       throw createError(404, 'User not found')
-      // return res.status(400).json({ success: false, message: 'User not found' })
     }
 
     if (user.isVerified) {
       throw createError(404, 'User not Verified')
-      // return res
-      //   .status(400)
-      //   .json({ success: false, message: 'User already verified' })
     }
 
-    await sendOTPInternal(email)
+    await sendOtpInternal(email)
 
     res.status(200).json({ success: true, message: 'OTP sent successfully' })
   } catch (err) {
     next(err)
-    // console.error('Error sending OTP:', err)
-    // res.status(500).json({ success: false, message: 'Failed to send OTP' })
   }
 }
 
@@ -65,8 +59,6 @@ export async function VerifyOtp(req, res, next) {
     })
   } catch (err) {
     next(err)
-    // console.error('OTP verification error:', err.message)
-    // res.status(400).json({ success: false, message: err.message })
   }
 }
 
@@ -77,7 +69,7 @@ export async function resetPassword(req, res, next) {
 
   try {
     if (!currentPassword || !newPassword) {
-      throw createError(400, 'All fields are required')   
+      throw createError(400, 'All fields are required')
     }
 
     const userID = req.userId
