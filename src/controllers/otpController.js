@@ -32,7 +32,7 @@ export async function sendOtp(req, res, next) {
       // return res.status(400).json({ success: false, message: 'User not found' })
     }
 
-    if (!user.isVerified) {
+    if (user.isVerified) {
       throw createError(404, 'User not Verified')
       // return res
       //   .status(400)
