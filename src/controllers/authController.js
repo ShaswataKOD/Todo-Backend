@@ -19,7 +19,7 @@ export async function registerUser(req, res, next) {
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(password, salt)
 
-    const isT = await bcrypt.compare(password, hashedPassword)
+    const isTrue = await bcrypt.compare(password, hashedPassword)
 
     const newUser = await User.create({
       name,
@@ -91,7 +91,7 @@ export async function loginUser(req, res, next) {
 
 export async function generateRefreshToken(req, res) {
   try {
-    const refreshToken = req.headers['refresh-token']
+    const refreshToken = req.headers['refresh_token']
 
     if (!refreshToken) {
       throw createError(401, 'Refresh Token not found')

@@ -72,13 +72,13 @@ export async function resetPassword(req, res, next) {
       throw createError(400, 'All fields are required')
     }
 
-    const userID = req.userId
+    const userId = req.userId
 
-    if (!userID) {
+    if (!userId) {
       throw createError(401, 'User not authorised')
     }
 
-    const user = await User.findById(userID)
+    const user = await User.findById(userId)
 
     if (!user) {
       throw createError(404, 'User not found')
