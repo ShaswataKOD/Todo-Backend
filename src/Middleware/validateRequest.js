@@ -1,7 +1,7 @@
 import {
   createTasksSchema,
   updateTasksSchema,
-} from '../schema/taksValidationSchema.js'
+} from '../schema/tasksValidationSchema.js'
 
 export const validateRequest = (schema) => async (req, res, next) => {
   try {
