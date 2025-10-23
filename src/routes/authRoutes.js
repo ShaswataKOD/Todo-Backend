@@ -14,8 +14,8 @@ import {
   validateSignUpRequest,
   validateLoginRequest,
   validateResetPasswordRequest,
-} from '../Middleware/userValidator.js'
-import verifyToken from '../Middleware/authValidator.js'
+} from '../middleware/userValidator.js'
+import verifyToken from '../middleware/authValidator.js'
 
 const router = express.Router()
 

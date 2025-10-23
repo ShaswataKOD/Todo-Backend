@@ -1,5 +1,4 @@
 import mongoose from 'mongoose'
-import { string } from 'yup'
 
 const otpSchema = new mongoose.Schema(
   {

@@ -1,7 +1,7 @@
 import otpGenerator from 'otp-generator'
 import Otp from '../models/otpModel.js'
 import User from '../models/userModel.js'
-import sendVerificationEmail from '../utils/VerificationMail.js'
+import sendVerificationEmail from '../utils/verificationMail.js'
 import verifyOtpForEmail from '../utils/verifyOtp.js'
 import bcrypt from 'bcryptjs'
 import createError from '../utils/createError.js'
@@ -32,7 +32,7 @@ export async function sendOtp(req, res, next) {
     }
 
     if (user.isVerified) {
-      throw createError(404, 'User not Verified')
+      throw createError(409, 'User already Verified')
     }
 
     await sendOtpInternal(email)

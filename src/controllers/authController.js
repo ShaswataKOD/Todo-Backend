@@ -67,7 +67,7 @@ export async function loginUser(req, res, next) {
       { userId: user._id },
       process.env.ACCESS_TOKEN_KEY,
       {
-        expiresIn: '2m',
+        expiresIn: process.env.ACCESS_TOKEN_TIME,
       }
     )
 
@@ -75,10 +75,11 @@ export async function loginUser(req, res, next) {
       { userId: user._id },
       process.env.REFRESH_TOKEN_KEY,
       {
-        expiresIn: '60d',
+        expiresIn: process.env.REFRESH_TOKEN_TIME,
       }
     )
-
+    console.log(refreshToken)
+    console.log(accessToken)
     return res.status(200).json({
       message: 'Login successful',
       accessToken,
@@ -101,14 +102,16 @@ export async function generateRefreshToken(req, res) {
     const newAccessToken = jwt.sign(
       { userId: decoded.userId },
       process.env.ACCESS_TOKEN_KEY,
-      { expiresIn: '2m' }
+      { expiresIn: process.env.ACCESS_TOKEN_TIME }
     )
 
     const newRefreshToken = jwt.sign(
       { userId: decoded.userId },
       process.env.REFRESH_TOKEN_KEY,
-      { expiresIn: '60d' }
+      { expiresIn: process.env.REFRESH_TOKEN_TIME }
     )
+    console.log(newRefreshToken)
+    console.log(newAccessToken)
 
     return res.status(200).json({
       message: 'Tokens refreshed',
