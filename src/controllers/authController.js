@@ -14,15 +14,12 @@ export async function registerUser(req, res, next) {
 
     if (existingUser) {
       throw createError(409, 'User already Exists')
-      // return res
-      //   .status(409)
-      //   .json({ success: false, message: 'User already exists' })
     }
 
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(password, salt)
 
-    const isT = await bcrypt.compare(password, hashedPassword)
+    const isTrue = await bcrypt.compare(password, hashedPassword)
 
     const newUser = await User.create({
       name,
@@ -41,13 +38,11 @@ export async function registerUser(req, res, next) {
       },
     })
   } catch (err) {
-    // console.error('Registration error:', err.message)
-    // res.status(500).json({ success: false, message: 'Registration failed' })
     next(err)
   }
 }
 
-export async function loginUser(req, res) {
+export async function loginUser(req, res, next) {
   try {
     const { email, password } = req.body
 
@@ -58,7 +53,7 @@ export async function loginUser(req, res) {
     }
 
     if (!user.isVerified) {
-      throw createError(403, 'User not found')
+      throw createError(403, 'User not Verified')
     }
 
     const hash = user.password
@@ -66,67 +61,57 @@ export async function loginUser(req, res) {
 
     if (!passwordMatch) {
       throw createError(401, 'Password did not match')
-      // return res.status(401).json({ error: 'Password did not match' })
     }
 
     const accessToken = jwt.sign(
       { userId: user._id },
-      process.env.ACESS_TOKEN_KEY || '12345',
+      process.env.ACCESS_TOKEN_KEY,
       {
-        expiresIn: '20s',
+        expiresIn: process.env.ACCESS_TOKEN_TIME,
       }
     )
 
     const refreshToken = jwt.sign(
       { userId: user._id },
-      process.env.REFRESH_TOKEN_KEY || '123456',
+      process.env.REFRESH_TOKEN_KEY,
       {
-        expiresIn: '60d',
+        expiresIn: process.env.REFRESH_TOKEN_TIME,
       }
     )
-
+    console.log(refreshToken)
+    console.log(accessToken)
     return res.status(200).json({
       message: 'Login successful',
       accessToken,
       refreshToken,
     })
   } catch (error) {
-    // console.error('Login error:', error)
-    // return res.status(500).json({ error: 'Login failed' })
     next(error)
   }
 }
 
-//work left to do cannot perform curd while we apply axios as axios and fetch donot work together
-
 export async function generateRefreshToken(req, res) {
   try {
-    const refreshToken = req.headers['refresh-token']
+    const refreshToken = req.headers['refresh_token']
 
     if (!refreshToken) {
       throw createError(401, 'Refresh Token not found')
     }
-    // return res.status(401).json({ message: 'No refresh token provided' })
-
-    const decoded = jwt.verify(
-      refreshToken,
-      process.env.REFRESH_TOKEN_KEY || '123456'
-    )
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_KEY)
 
     const newAccessToken = jwt.sign(
       { userId: decoded.userId },
-      process.env.ACCESS_TOKEN_KEY || '12345',
-      { expiresIn: '2m' }
+      process.env.ACCESS_TOKEN_KEY,
+      { expiresIn: process.env.ACCESS_TOKEN_TIME }
     )
 
     const newRefreshToken = jwt.sign(
       { userId: decoded.userId },
-      process.env.REFRESH_TOKEN_KEY || '123456',
-      { expiresIn: '60d' }
+      process.env.REFRESH_TOKEN_KEY,
+      { expiresIn: process.env.REFRESH_TOKEN_TIME }
     )
-
-    res.header('access-token', newAccessToken)
-    res.header('refresh-token', newRefreshToken)
+    console.log(newRefreshToken)
+    console.log(newAccessToken)
 
     return res.status(200).json({
       message: 'Tokens refreshed',
@@ -134,7 +119,6 @@ export async function generateRefreshToken(req, res) {
       refreshToken: newRefreshToken,
     })
   } catch (error) {
-    // return res.status(403).json({ message: 'Invalid token' })
     next(error)
   }
 }

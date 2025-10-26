@@ -17,18 +17,18 @@
 import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
 
-
 dotenv.config()
 
 function verifyToken(req, res, next) {
   const token = req.header('Authorization')?.split(' ')[1]
+  console.log(token)
 
   if (!token) {
     return res.status(401).json({ error: 'Access denied. No token provided.' })
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.ACESS_TOKEN_KEY || '12345')
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_KEY)
 
     console.log(decoded)
 

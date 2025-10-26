@@ -2,7 +2,7 @@ import {
   signUpSchema,
   loginSchema,
   resetPasswordSchema,
-} from './userValidationSchema.js'
+} from '../schema/userValidationSchema.js'
 
 export const validateSignUpRequest = async (req, res, next) => {
   try {
@@ -10,7 +10,7 @@ export const validateSignUpRequest = async (req, res, next) => {
       req.body.role = req.headers.role
     } else {
       req.body.role = 'user'
-    };
+    }
 
     await signUpSchema.validate(req.body, {
       abortEarly: false,
@@ -62,7 +62,6 @@ export const validateResetPasswordRequest = async (req, res, next) => {
     console.log('Validated Reset Password:', req.body)
 
     next()
-    
   } catch (err) {
     if (err.name === 'ValidationError') {
       const errors = err.inner.map((e) => e.message)

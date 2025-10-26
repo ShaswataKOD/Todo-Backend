@@ -8,7 +8,7 @@ import {
   searchTasks,
   updateTask,
   deleteTask
-} from '../controllers/taksController.js'
+} from '../controllers/tasksController.js'
 import { todoCreateSchema,todoUpdateSchema } from '../Middleware/validateRequest.js';
 
 const router = express.Router();

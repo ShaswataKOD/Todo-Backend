@@ -1,4 +1,4 @@
-import mailSender from '../mail services/sendMail.js'
+import mailSender from './sendMail.js'
 import fs from 'fs'
 import path from 'path'
 

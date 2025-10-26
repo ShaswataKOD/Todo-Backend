@@ -8,7 +8,7 @@ import { errorHandler } from './errorHandler/errorHandling.js'
 import connectDB from './db/mongoClient.js'
 import authRoutes from './routes/authRoutes.js'
 import loggerMiddleware from './Middleware/logger.js'
-import verifyToken from './Middleware/authValidator.js'
+import verifyToken from './middleware/authValidator.js'
 
 console.log('URI:', process.env.URI)
 console.log('PORT:', process.env.PORT)
