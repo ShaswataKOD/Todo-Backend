@@ -10,8 +10,11 @@ import authRoutes from './routes/authRoutes.js'
 import loggerMiddleware from './Middleware/logger.js'
 import verifyToken from './middleware/authValidator.js'
 
-console.log('URI:', process.env.URI)
-console.log('PORT:', process.env.PORT)
+console.log(
+  'URI:',
+  process.env.URI
+)
+console.log('PORT:', process.env.PORT || '5000')
 
 connectDB()
 

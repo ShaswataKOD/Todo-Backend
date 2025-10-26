@@ -1,22 +1,24 @@
+// MongoDB version
 
-// MongoDB version 
-
-import express from 'express';
+import express from 'express'
 import {
   readTask,
   createTasks,
   searchTasks,
   updateTask,
-  deleteTask
+  deleteTask,
 } from '../controllers/tasksController.js'
-import { todoCreateSchema,todoUpdateSchema } from '../Middleware/validateRequest.js';
+import {
+  todoCreateSchema,
+  todoUpdateSchema,
+} from '../Middleware/validateRequest.js'
 
-const router = express.Router();
+const router = express.Router()
 
-router.get('/', readTask);
-router.post('/',todoCreateSchema, createTasks);
-router.get('/search',searchTasks);
-router.put('/:id', todoUpdateSchema,updateTask);
-router.delete('/:id', deleteTask);
+router.get('/', readTask)
+router.post('/', todoCreateSchema, createTasks)
+router.get('/search', searchTasks)
+router.put('/:id', todoUpdateSchema, updateTask)
+router.delete('/:id', deleteTask)
 
-export default router;
+export default router

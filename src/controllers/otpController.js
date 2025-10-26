@@ -62,8 +62,6 @@ export async function VerifyOtp(req, res, next) {
   }
 }
 
-// this needed to use authentication thatis acess token
-
 export async function resetPassword(req, res, next) {
   const { currentPassword, newPassword } = req.body
 

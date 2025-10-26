@@ -1,8 +1,8 @@
 export default function loggerMiddleware(req, res, next) {
   try {
-    const { body, headers, params, query, originalUrl, baseUrl, host } = req;
+    const { body, headers, params, query, originalUrl, baseUrl, host } = req
 
-    console.log(':::::::::::::::::::::Incoming Request:::::::::::::::::::::');
+    console.log(':::::::::::::::::::::Incoming Request:::::::::::::::::::::')
     console.log({
       body,
       headers,
@@ -12,13 +12,11 @@ export default function loggerMiddleware(req, res, next) {
       baseUrl,
       host,
       time: new Date().toLocaleTimeString(),
-    });
-    console.log(':::::::::::::::::::::Request Ends:::::::::::::::::::::');
+    })
+    console.log(':::::::::::::::::::::Request Ends:::::::::::::::::::::')
 
-    next();
+    next()
   } catch (error) {
-    next(error);
+    next(error)
   }
 }
-
-

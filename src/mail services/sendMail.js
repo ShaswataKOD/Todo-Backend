@@ -11,7 +11,7 @@ const mailSender = async (email, subject, html) => {
       secure: false,
       auth: {
         user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS ,
+        pass: process.env.MAIL_PASS,
       },
     })
 

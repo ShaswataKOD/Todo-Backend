@@ -5,9 +5,7 @@
       "title": "sleep",
       "completed": false,
       "priority": "Low",
-      "tags": [
-        "imp"
-      ],
+      "tags": ["imp"],
       "timestamp": "8/10/2025, 10:41:44 am"
     },
     {
@@ -15,9 +13,7 @@
       "title": "fdvxb",
       "completed": false,
       "priority": "Low",
-      "tags": [
-        "xcz"
-      ],
+      "tags": ["xcz"],
       "timestamp": "8/10/2025, 3:37:58 pm"
     },
     {
@@ -25,9 +21,7 @@
       "title": "gh111",
       "completed": false,
       "priority": "Low",
-      "tags": [
-        "nn"
-      ],
+      "tags": ["nn"],
       "timestamp": "8/10/2025, 4:00:40 pm"
     },
     {
@@ -35,9 +29,7 @@
       "title": "zxvxc",
       "completed": false,
       "priority": "High",
-      "tags": [
-        "zz"
-      ],
+      "tags": ["zz"],
       "timestamp": "8/10/2025, 4:00:58 pm"
     }
   ]

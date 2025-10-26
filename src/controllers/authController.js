@@ -19,7 +19,7 @@ export async function registerUser(req, res, next) {
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(password, salt)
 
-    const isTrue = await bcrypt.compare(password, hashedPassword)
+    await bcrypt.compare(password, hashedPassword)
 
     const newUser = await User.create({
       name,
@@ -78,8 +78,10 @@ export async function loginUser(req, res, next) {
         expiresIn: process.env.REFRESH_TOKEN_TIME,
       }
     )
+    
     console.log(refreshToken)
     console.log(accessToken)
+
     return res.status(200).json({
       message: 'Login successful',
       accessToken,
@@ -90,25 +92,28 @@ export async function loginUser(req, res, next) {
   }
 }
 
-export async function generateRefreshToken(req, res) {
+export async function generateRefreshToken(req, res, next) {
   try {
     const refreshToken = req.headers['refresh_token']
 
     if (!refreshToken) {
       throw createError(401, 'Refresh Token not found')
     }
-    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_KEY)
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_KEY
+    )
 
     const newAccessToken = jwt.sign(
       { userId: decoded.userId },
       process.env.ACCESS_TOKEN_KEY,
-      { expiresIn: process.env.ACCESS_TOKEN_TIME }
+      { expiresIn: process.env.ACCESS_TOKEN_TIME}
     )
 
     const newRefreshToken = jwt.sign(
       { userId: decoded.userId },
       process.env.REFRESH_TOKEN_KEY,
-      { expiresIn: process.env.REFRESH_TOKEN_TIME }
+      { expiresIn: process.env.REFRESH_TOKEN_TIME}
     )
     console.log(newRefreshToken)
     console.log(newAccessToken)

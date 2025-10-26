@@ -14,6 +14,9 @@
 // }
 
 // export default verifyToken;
+
+/* eslint-disable */
+
 import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
 
