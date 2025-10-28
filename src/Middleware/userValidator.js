@@ -65,6 +65,7 @@ export const validateResetPasswordRequest = async (req, res, next) => {
   } catch (err) {
     if (err.name === 'ValidationError') {
       const errors = err.inner.map((e) => e.message)
+      
       return res.status(400).json({ errors })
     }
     next(err)

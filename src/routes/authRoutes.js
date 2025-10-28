@@ -15,6 +15,8 @@ import {
   validateLoginRequest,
   validateResetPasswordRequest,
 } from '../middleware/userValidator.js'
+
+import updateProfile from '../controllers/profileController.js'
 import verifyToken from '../middleware/authValidator.js'
 
 const router = express.Router()
@@ -31,5 +33,6 @@ router.post(
 )
 router.post('/forgotpassword', forgotPassword)
 router.post('/refresh', generateRefreshToken)
+router.post('/update', verifyToken, updateProfile)
 
 export default router
