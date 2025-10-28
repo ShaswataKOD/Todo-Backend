@@ -1,7 +1,24 @@
 import createError from '../utils/createError.js'
 import User from '../models/userModel.js'
 
-async function updateProfile(req, res, next) {
+export async function getProfile(req, res, next) {
+  try {
+    const userId = req.userId
+
+    const user = await User.findById(userId).select(
+      'username profileImage email'
+    )
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+
+    res.status(200).json({ user })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export async function updateProfile(req, res, next) {
   try {
     const { username, profileImage } = req.body
     const userId = req.userId
@@ -14,7 +31,7 @@ async function updateProfile(req, res, next) {
       userId,
       { username, profileImage },
       { new: true }
-    )
+    ).select('username profileImage email')
 
     if (!updatedUser) {
       throw createError(404, 'User not found')
@@ -22,14 +39,9 @@ async function updateProfile(req, res, next) {
 
     return res.status(200).json({
       message: 'Profile updated successfully',
-      user: {
-        name: updatedUser.username,
-        profileImage: updatedUser.profileImage,
-      },
+      user: updatedUser,
     })
   } catch (error) {
     next(error)
   }
 }
-
-export default updateProfile
