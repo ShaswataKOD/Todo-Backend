@@ -1,6 +1,7 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
+import config from './config/constants.js'
 import express from 'express'
 import cors from 'cors'
 import taskRouter from './routes/routers.js'
@@ -10,16 +11,13 @@ import authRoutes from './routes/authRoutes.js'
 import loggerMiddleware from './Middleware/logger.js'
 import verifyToken from './middleware/authValidator.js'
 
-console.log(
-  'URI:',
-  process.env.URI
-)
-console.log('PORT:', process.env.PORT || '5000')
+console.log('URI:', config.URI)
+console.log('PORT:', config.PORT || '5000')
 
 connectDB()
 
 const app = express()
-const PORT = process.env.PORT || 5000
+const PORT = config.PORT || 5000
 
 app.use(cors())
 app.use(express.json())

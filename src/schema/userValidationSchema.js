@@ -12,7 +12,6 @@ export const loginSchema = yup.object({
 })
 
 export const resetPasswordSchema = yup.object({
-  email: yup.string().required(),
   currentPassword: yup.string().required(),
   newPassword: yup.string().required(),
 })

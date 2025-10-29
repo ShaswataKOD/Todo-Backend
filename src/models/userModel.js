@@ -11,12 +11,13 @@ const userSchema = new mongoose.Schema(
       enum: ['Admin', 'Student', 'Visitor'],
       default: 'Visitor',
     },
+    profileImage: { type: String, default: '' },
   },
   {
     timestamps: true,
   }
 )
 
-const User = mongoose.model('User', userSchema)
+const userModel = mongoose.model('User', userSchema)
 
-export default User
+export default userModel
