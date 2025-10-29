@@ -1,4 +1,4 @@
-import Otp from '../../models/otpModel.js'
+import otpModel from '../../models/otpModel.js'
 import User from '../../models/userModel.js'
 
 export async function verifyOtpForEmail(email, otp) {
@@ -8,7 +8,7 @@ export async function verifyOtpForEmail(email, otp) {
     throw new Error('User not found')
   }
 
-  const otpRecord = await Otp.findOne({ email }).sort({ createdAt: -1 })
+  const otpRecord = await otpModel.findOne({ email }).sort({ createdAt: -1 })
 
   if (!otpRecord) {
     throw new Error('No OTP found. Request a new one.')

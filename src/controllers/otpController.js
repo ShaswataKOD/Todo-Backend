@@ -1,5 +1,5 @@
 import otpGenerator from 'otp-generator'
-import Otp from '../models/otpModel.js'
+import otpModel from '../models/otpModel.js'
 import User from '../models/userModel.js'
 import sendVerificationEmail from '../utils/verificationMail.js'
 import verifyOtpForEmail from '../utils/verifyOtp.js'
@@ -16,7 +16,7 @@ export async function sendOtpInternal(email) {
 
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000)
 
-  await Otp.create({ email, otp, isUsed: false, expiresAt })
+  await otpModel.create({ email, otp, isUsed: false, expiresAt })
 
   await sendVerificationEmail(email, otp)
 }
@@ -132,7 +132,12 @@ export async function forgotPassword(req, res, next) {
 
       const expiresAt = new Date(Date.now() + 5 * 60 * 1000)
 
-      await Otp.create({ email, otp: generatedOtp, isUsed: false, expiresAt })
+      await otpModel.create({
+        email,
+        otp: generatedOtp,
+        isUsed: false,
+        expiresAt,
+      })
 
       await sendVerificationEmail(email, generatedOtp)
 
@@ -162,7 +167,7 @@ export async function forgotPassword(req, res, next) {
     } else if (otp) {
       await verifyOtpForEmail(email, otp)
 
-      const otpRecord = await Otp.findOne({ email, otp }).sort({
+      const otpRecord = await otpModel.findOne({ email, otp }).sort({
         createdAt: -1,
       })
 
