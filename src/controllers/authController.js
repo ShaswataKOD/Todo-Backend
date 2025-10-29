@@ -1,10 +1,12 @@
 import bcrypt from 'bcryptjs'
 import userModel from '../models/userModel.js'
-import dotenv from 'dotenv'
+import config from '../config/constants.js'
+// import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
 import createError from '../utils/createError.js'
+// import { config } from 'dotenv'
 
-dotenv.config()
+// dotenv.config()
 
 export async function registerUser(req, res, next) {
   try {
@@ -65,17 +67,17 @@ export async function loginUser(req, res, next) {
 
     const accessToken = jwt.sign(
       { userId: user._id },
-      process.env.ACCESS_TOKEN_KEY,
+      config.ACCESS_TOKEN_KEY,
       {
-        expiresIn: process.env.ACCESS_TOKEN_TIME,
+        expiresIn: config.ACCESS_TOKEN_TIME,
       }
     )
 
     const refreshToken = jwt.sign(
       { userId: user._id },
-      process.env.REFRESH_TOKEN_KEY,
+      config.REFRESH_TOKEN_KEY,
       {
-        expiresIn: process.env.REFRESH_TOKEN_TIME,
+        expiresIn: config.REFRESH_TOKEN_TIME,
       }
     )
 
@@ -99,18 +101,17 @@ export async function generateRefreshToken(req, res, next) {
     if (!refreshToken) {
       throw createError(401, 'Refresh Token not found')
     }
-    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_KEY)
 
     const newAccessToken = jwt.sign(
       { userId: decoded.userId },
-      process.env.ACCESS_TOKEN_KEY,
-      { expiresIn: process.env.ACCESS_TOKEN_TIME }
+      config.ACCESS_TOKEN_KEY,
+      { expiresIn: config.ACCESS_TOKEN_TIME }
     )
 
     const newRefreshToken = jwt.sign(
       { userId: decoded.userId },
-      process.env.REFRESH_TOKEN_KEY,
-      { expiresIn: process.env.REFRESH_TOKEN_TIME }
+      config.REFRESH_TOKEN_KEY,
+      { expiresIn: config.REFRESH_TOKEN_TIME }
     )
     console.log(newRefreshToken)
     console.log(newAccessToken)

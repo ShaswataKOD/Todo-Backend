@@ -1,9 +1,10 @@
-import dotenv from 'dotenv'
+// import dotenv from 'dotenv'
 import mongoose from 'mongoose'
+import config from '../config/constants.js'
 
-dotenv.config()
+// dotenv.config()
 
-const URI = process.env.URI
+const URI = config.URI
 
 const connectDB = async () => {
   try {

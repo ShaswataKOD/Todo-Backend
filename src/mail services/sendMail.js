@@ -1,22 +1,23 @@
+import config from '../config/constants.js'
 import nodemailer from 'nodemailer'
-import dotenv from 'dotenv'
+// import dotenv from 'dotenv'
 
-dotenv.config()
+// dotenv.config()
 
 const mailSender = async (email, subject, html) => {
   try {
     const transporter = nodemailer.createTransport({
-      host: process.env.MAIL_HOST,
-      port: process.env.MAIL_PORT || 587,
+      host: config.MAIL_HOST,
+      port: config.MAIL_PORT || 587,
       secure: false,
       auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS,
+        user: config.MAIL_USER,
+        pass: config.MAIL_PASS,
       },
     })
 
     const info = await transporter.sendMail({
-      from: `"Task Manager" <${process.env.MAIL_USER}>`,
+      from: `"Task Manager" <${config.MAIL_USER}>`,
       to: email,
       subject,
       html,

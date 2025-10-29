@@ -1,26 +1,10 @@
-// import jwt from 'jsonwebtoken';
-
-// function verifyToken(req, res, next) {
-//   const token = req.header('Authorization');
-//   if (!token) return res.status(401).json({ error: 'Access denied' });
-
-//   try {
-//     const decoded = jwt.verify(token, 'your-secret-key');
-//     req.userId = decoded.userId;
-//     next();
-//   } catch (error) {
-//     res.status(401).json({ error: 'Invalid token' });
-//   }
-// }
-
-// export default verifyToken;
-
 /* eslint-disable */
 
-import dotenv from 'dotenv'
+// import dotenv, { config } from 'dotenv'
 import jwt from 'jsonwebtoken'
+import config from '../config/constants.js'
 
-dotenv.config()
+// dotenv.config()
 
 function verifyToken(req, res, next) {
   const token = req.header('Authorization')?.split(' ')[1]
@@ -31,7 +15,7 @@ function verifyToken(req, res, next) {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_KEY)
+    const decoded = jwt.verify(token, config.ACCESS_TOKEN_KEY)
 
     console.log(decoded)
 
