@@ -1,6 +1,6 @@
 import otpGenerator from 'otp-generator'
 import otpModel from '../models/otpModel.js'
-import User from '../models/userModel.js'
+import userModel from '../models/userModel.js'
 import sendVerificationEmail from '../utils/verificationMail.js'
 import verifyOtpForEmail from '../utils/verifyOtp.js'
 import bcrypt from 'bcryptjs'
@@ -25,7 +25,7 @@ export async function sendOtp(req, res, next) {
   try {
     const { email } = req.body
 
-    const user = await User.findOne({ email })
+    const user = await userModel.findOne({ email })
 
     if (!user) {
       throw createError(404, 'User not found')
@@ -76,7 +76,7 @@ export async function resetPassword(req, res, next) {
       throw createError(401, 'User not authorised')
     }
 
-    const user = await User.findById(userId)
+    const user = await userModel.findById(userId)
 
     if (!user) {
       throw createError(404, 'User not found')
@@ -116,7 +116,7 @@ export async function forgotPassword(req, res, next) {
       throw createError(400, 'Email is required')
     }
 
-    const user = await User.findOne({ email })
+    const user = await userModel.findOne({ email })
 
     if (!user) {
       throw createError(404, 'user not found')

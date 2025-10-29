@@ -1,13 +1,13 @@
 import createError from '../utils/createError.js'
-import User from '../models/userModel.js'
+import userModel from '../models/userModel.js'
 
 export async function getProfile(req, res, next) {
   try {
     const userId = req.userId
 
-    const user = await User.findById(userId).select(
-      'username profileImage email'
-    )
+    const user = await userModel
+      .findById(userId)
+      .select('username profileImage email')
     if (!user) {
       return res.status(404).json({ message: 'User not found' })
     }
@@ -27,11 +27,9 @@ export async function updateProfile(req, res, next) {
       return res.status(400).json({ message: 'Username is required' })
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { username, profileImage },
-      { new: true }
-    ).select('username profileImage email')
+    const updatedUser = await userModel
+      .findByIdAndUpdate(userId, { username, profileImage }, { new: true })
+      .select('username profileImage email')
 
     if (!updatedUser) {
       throw createError(404, 'User not found')

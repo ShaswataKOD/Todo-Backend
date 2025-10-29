@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs'
-import User from '../models/userModel.js'
+import userModel from '../models/userModel.js'
 import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
 import createError from '../utils/createError.js'
@@ -10,7 +10,7 @@ export async function registerUser(req, res, next) {
   try {
     const { name, email, password } = req.body
 
-    const existingUser = await User.findOne({ email })
+    const existingUser = await userModel.findOne({ email })
 
     if (existingUser) {
       throw createError(409, 'User already Exists')
@@ -21,7 +21,7 @@ export async function registerUser(req, res, next) {
 
     await bcrypt.compare(password, hashedPassword)
 
-    const newUser = await User.create({
+    const newUser = await userModel.create({
       name,
       email,
       password: hashedPassword,
@@ -46,7 +46,7 @@ export async function loginUser(req, res, next) {
   try {
     const { email, password } = req.body
 
-    const user = await User.findOne({ email })
+    const user = await userModel.findOne({ email })
 
     if (!user) {
       throw createError(404, 'User not found')
@@ -78,7 +78,7 @@ export async function loginUser(req, res, next) {
         expiresIn: process.env.REFRESH_TOKEN_TIME,
       }
     )
-    
+
     console.log(refreshToken)
     console.log(accessToken)
 
@@ -99,21 +99,18 @@ export async function generateRefreshToken(req, res, next) {
     if (!refreshToken) {
       throw createError(401, 'Refresh Token not found')
     }
-    const decoded = jwt.verify(
-      refreshToken,
-      process.env.REFRESH_TOKEN_KEY
-    )
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_KEY)
 
     const newAccessToken = jwt.sign(
       { userId: decoded.userId },
       process.env.ACCESS_TOKEN_KEY,
-      { expiresIn: process.env.ACCESS_TOKEN_TIME}
+      { expiresIn: process.env.ACCESS_TOKEN_TIME }
     )
 
     const newRefreshToken = jwt.sign(
       { userId: decoded.userId },
       process.env.REFRESH_TOKEN_KEY,
-      { expiresIn: process.env.REFRESH_TOKEN_TIME}
+      { expiresIn: process.env.REFRESH_TOKEN_TIME }
     )
     console.log(newRefreshToken)
     console.log(newAccessToken)
